@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kalender</title>
+  @vite(['resources/css/app.css'])
+  <style>
+    /* Spezielles Design nur für den Kalender */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr); /* 7 Spalten für 7 Tage */
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .day-name {
+      font-weight: 700;
+      text-align: center;
+      color: #a0aec0;
+      padding-bottom: 10px;
+    }
+    .day-cell {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    /* Hebt den heutigen Tag farblich hervor! */
+    .day-cell.today {
+      background: #ebf8ff;
+      border: 2px solid #667eea;
+      color: #2b6cb0;
+      font-weight: bold;
+    }
+    .day-number {
+      text-align: right;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="container" style="max-width: 800px;"> <div style="margin-bottom: 20px;">
+      <a href="/" style="text-decoration: none; color: #a0aec0; font-weight: bold;">
+        &larr; Zurück zum Dashboard
+      </a>
+    </div>
+
+    <h1>📅 Mein Kalender</h1>
+
+    <h2 id="month-year-display" style="text-align: center; margin-bottom: 30px; font-size: 24px; color: #667eea;"></h2>
+
+    <div class="calendar-grid">
+      <div class="day-name">Mo</div>
+      <div class="day-name">Di</div>
+      <div class="day-name">Mi</div>
+      <div class="day-name">Do</div>
+      <div class="day-name">Fr</div>
+      <div class="day-name">Sa</div>
+      <div class="day-name">So</div>
+    </div>
+
+    <div class="calendar-grid" id="calendar-body">
+      </div>
+
+  </div>
+
+<script>
+  // Wir wandeln die To-Dos vom Server in ein JS-Objekt um
+  const serverTodos = {{{ JSON.stringify(todos) }}};
+  
+  const date = new Date();
+  const currentYear = date.getFullYear();
+  const currentMonth = date.getMonth();
+  const todayDate = date.getDate();
+
+  const calendarBody = document.getElementById('calendar-body');
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  let emptyDays = firstDay === 0 ? 6 : firstDay - 1;
+
+  for (let i = 0; i < emptyDays; i++) {
+    calendarBody.innerHTML += `<div class="day-cell" style="background: transparent; border: none;"></div>`;
+  }
+
+  for (let i = 1; i <= daysInMonth; i++) {
+    
+    const dayString = i < 10 ? '0' + i : i;
+    const monthString = (currentMonth + 1) < 10 ? '0' + (currentMonth + 1) : (currentMonth + 1);
+    const currentDate = `${currentYear}-${monthString}-${dayString}`;
+    
+    // Check: Gibt es To-Dos für DIESES Datum?
+    const todosForThisDay = serverTodos.filter(t => t.due_date === currentDate);
+    
+    let isToday = (i === todayDate) ? 'today' : '';
+    let todoHtml = '';
+    
+    // Falls ja, bauen wir kleine Sticker für den Kalender
+    todosForThisDay.forEach(t => {
+      todoHtml += `
+        <div style="font-size: 9px; background: #667eea; color: white; padding: 2px 4px; border-radius: 4px; margin-top: 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+          ${t.title}
+        </div>
+      `;
+    });
+
+    calendarBody.innerHTML += `
+      <div class="day-cell ${isToday}">
+        <div class="day-number">${i}</div>
+        <div style="flex-grow: 1; overflow-y: auto;">${todoHtml}</div>
+      </div>
+    `;
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Fokus Timer</title>
+  @vite(['resources/css/app.css'])
+</head>
+<body>
+  
+  <div class="container" style="text-align: center;">
+    <div style="text-align: left; margin-bottom: 20px;">
+      <a href="/" style="text-decoration: none; color: #a0aec0; font-weight: bold;">
+        &larr; Zurück zum Dashboard
+      </a>
+    </div>
+
+    <h1>🍅 Fokus Timer</h1>
+    <p style="color: #4a5568; margin-bottom: 40px;">Arbeite hochkonzentriert für 25 Minuten, danach 5 Minuten Pause.</p>
+
+    <div id="timer-display" style="font-size: 80px; font-weight: 700; color: #2d3748; margin-bottom: 40px; font-variant-numeric: tabular-nums;">
+      25:00
+    </div>
+
+    <div style="display: flex; justify-content: center; gap: 15px;">
+      <button id="start-btn" class="btn-primary" style="font-size: 18px; padding: 15px 40px;">▶ Start</button>
+      <button id="reset-btn" class="btn-warning" style="font-size: 18px; padding: 15px 40px;">↻ Reset</button>
+    </div>
+  </div>
+
+  <script>
+    let timeLeft = 25 * 60; // 25 Minuten in Sekunden
+    let timerId = null;
+
+    const display = document.getElementById('timer-display');
+    const startBtn = document.getElementById('start-btn');
+    const resetBtn = document.getElementById('reset-btn');
+
+    // Funktion, um die Zeit schön im Format MM:SS anzuzeigen
+    function updateDisplay() {
+      const minutes = Math.floor(timeLeft / 60);
+      let seconds = timeLeft % 60;
+      if (seconds < 10) seconds = '0' + seconds; // Eine Null davorhängen (z.B. 09 statt 9)
+      display.textContent = `${minutes}:${seconds}`;
+    }
+
+    // Wenn man auf Start klickt...
+    startBtn.addEventListener('click', () => {
+      // Verhindern, dass der Timer doppelt startet, wenn man mehrmals klickt
+      if (timerId !== null) return; 
+      
+      startBtn.textContent = '⏳ Läuft...';
+      startBtn.classList.replace('btn-primary', 'btn-success');
+      
+      // Jede Sekunde (1000 Millisekunden) einen abziehen
+      timerId = setInterval(() => {
+        timeLeft--;
+        updateDisplay();
+        
+        // Wenn die Zeit abgelaufen ist
+        if (timeLeft <= 0) {
+          clearInterval(timerId);
+          timerId = null;
+          startBtn.textContent = '▶ Start';
+          startBtn.classList.replace('btn-success', 'btn-primary');
+          alert('Zeit abgelaufen! Mach eine kurze Pause. ☕');
+        }
+      }, 1000);
+    });
+
+    // Wenn man auf Reset klickt...
+    resetBtn.addEventListener('click', () => {
+      clearInterval(timerId); // Stoppt den laufenden Timer
+      timerId = null;
+      timeLeft = 25 * 60; // Wieder auf 25 Minuten setzen
+      updateDisplay();
+      startBtn.textContent = '▶ Start';
+      startBtn.classList.replace('btn-success', 'btn-primary');
+    });
+  </script>
+
+</body>
+</html>

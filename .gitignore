@@ -1,0 +1,49 @@
+# ──────────────────────────────────────────────────────────
+#  Webprojekt – .gitignore
+#  Hält node_modules, Secrets, Build- und Temp-Dateien aus Git.
+# ──────────────────────────────────────────────────────────
+
+# Abhängigkeiten – werden lokal per "npm install" erzeugt
+**/node_modules/
+
+# Build-Output
+**/build/
+**/dist/
+**/coverage/
+
+# Secrets / Umgebungsvariablen
+# (Vorlagen .env.example und .env.test bleiben absichtlich im Repo)
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Adonis / Vite – temporär & generiert
+**/tmp/*
+!**/tmp/.gitkeep
+**/.vite/
+
+# Lokale Entwicklungs-Datenbank
+# WICHTIG: für die Abgabe die DB-Datei separat in die ZIP legen!
+**/*.sqlite3
+**/*.sqlite
+
+# Laufzeit-Uploads (entstehen beim Testen → sonst Merge-Konflikte)
+WB_KSD/public/uploads/*
+!WB_KSD/public/uploads/.gitkeep
+
+# Editor / Betriebssystem
+**/.DS_Store
+.vscode/
+.idea/
+*.log
+
+# Backup der alten Git-Historie (kann gelöscht werden, wenn alles läuft)
+git-historie-backup.tar.gz
+
+# Aufräum-Reste aus der Vorbereitung
+_wtest
+
+# Prof-Vorgaben: Zugangsdaten o. Ä. niemals committen
+**/sftp.json
+**/.my.cnf
+**/mysql-zugangsdaten.txt

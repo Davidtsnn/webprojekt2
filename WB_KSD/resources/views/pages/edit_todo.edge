@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>To-Do Bearbeiten</title>
+  @vite(['resources/css/app.css'])
+</head>
+<body>
+  
+  <div class="container">
+    <div style="margin-bottom: 20px;">
+      <a href="/" style="text-decoration: none; color: #a0aec0; font-weight: bold;">
+        &larr; Zurück zum Dashboard
+      </a>
+    </div>
+
+    <h1>✏️ To-Do bearbeiten</h1>
+
+    <form action="/todos/update/{{ todo.id }}" method="post" style="display: flex; flex-direction: column; gap: 15px; background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+      {{ csrfField() }}
+      
+      <div>
+        <label style="font-weight: bold; color: #4a5568;">Was ist zu tun?</label>
+        <input type="text" name="title" value="{{ todo.title }}" required style="width: 100%; margin-top: 5px; box-sizing: border-box;">
+      </div>
+      
+      <div>
+        <label style="font-weight: bold; color: #4a5568;">Fälligkeitsdatum:</label>
+        <input type="date" name="due_date" value="{{ todo.due_date || '' }}" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-top: 5px; box-sizing: border-box;">
+      </div>
+
+      <div style="display: flex; gap: 15px;">
+        <div style="flex: 1;">
+          <label style="font-weight: bold; color: #4a5568;">Kategorie:</label>
+          <select name="category" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-top: 5px;">
+            <option value="Uni" {{ todo.category === 'Uni' ? 'selected' : '' }}>🎓 Uni</option>
+            <option value="Haushalt" {{ todo.category === 'Haushalt' ? 'selected' : '' }}>🏠 Haushalt</option>
+            <option value="Freizeit" {{ todo.category === 'Freizeit' ? 'selected' : '' }}>🎈 Freizeit</option>
+          </select>
+        </div>
+
+        <div style="flex: 1;">
+          <label style="font-weight: bold; color: #4a5568;">Priorität:</label>
+          <select name="priority" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-top: 5px;">
+            <option value="Niedrig" {{ todo.priority === 'Niedrig' ? 'selected' : '' }}>🟢 Niedrig</option>
+            <option value="Mittel" {{ todo.priority === 'Mittel' ? 'selected' : '' }}>🟡 Mittel</option>
+            <option value="Hoch" {{ todo.priority === 'Hoch' ? 'selected' : '' }}>🔴 Hoch</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" style="margin-top: 10px;">💾 Änderungen speichern</button>
+    </form>
+  </div>
+
+</body>
+</html>

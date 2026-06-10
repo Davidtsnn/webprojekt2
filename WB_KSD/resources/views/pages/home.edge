@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Habit Tracker</title>
+  
+  @vite(['resources/css/app.css'])
+</head>
+<body>
+  
+  <div class="container">
+    <h1>Mein Habit-Dashboard</h1>
+
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px;">
+      <a href="/calendar" style="text-decoration: none;">
+        <button class="btn-success" style="background-color: #e2e8f0; color: #2d3748;">📅 Kalender</button>
+      </a>
+      <a href="/focus" style="text-decoration: none;">
+        <button class="btn-primary">⏱️ Zum Fokus Timer</button>
+      </a>
+    </div>
+
+    <h2>📅 Heutige Gewohnheiten</h2>
+    <ul>
+      @each (habit in habits)
+        <li>
+          <div class="task-info">
+            <strong>{{ habit.name }}</strong>
+            <small>{{ habit.category }}</small>
+          </div>
+          
+          @if(habit.isDoneToday)
+            <span class="fire-text">🔥 Geschafft!</span>
+          @else
+            <form action="/habits/log/{{ habit.id }}" method="post" style="margin: 0;">
+              {{ csrfField() }}
+              <button type="submit" class="btn-success">✅ Erledigt</button>
+            </form>
+          @end
+        </li>
+      @end
+    </ul>
+
+    <hr style="margin: 40px 0; border: 0; border-top: 2px dashed #edf2f7;">
+
+<h2>⚙️ To-Dos verwalten</h2>
+    
+      <form action="/todos/create" method="post" enctype="multipart/form-data" class="input-group" style="flex-direction: column; gap: 10px;">
+    {{ csrfField() }} 
+    <input type="text" name="title" placeholder="Was ist zu tun?" required>
+    
+    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+      <input type="date" name="due_date" style="padding: 10px; border-radius: 8px; border: 1px solid #ddd; flex: 1;">
+
+      <select name="category" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+        <option value="Uni">🎓 Uni</option>
+        <option value="Haushalt">🏠 Haushalt</option>
+        <option value="Freizeit">🎈 Freizeit</option>
+      </select>
+
+      <select name="priority" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+        <option value="Niedrig">🟢 Niedrig</option>
+        <option value="Mittel">🟡 Mittel</option>
+        <option value="Hoch">🔴 Hoch</option>
+      </select>
+    </div>
+    
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <input type="file" name="image" accept="image/*" style="font-size: 12px; flex: 1;">
+      <button type="submit" class="btn-primary">Hinzufügen</button>
+    </div>
+  </form>
+
+<ul>
+      @each (todo in todos)
+        <li style="{{ todo.is_completed ? 'opacity: 0.6;' : '' }}">
+          
+          <div class="task-info">
+            <strong class="{{ todo.is_completed ? 'completed-text' : '' }}">
+              {{ todo.title }}
+            </strong>
+            <small>{{ todo.priority }} | {{ todo.category }} {{ todo.due_date ? '| 📅 ' + todo.due_date : '' }}</small>
+
+            @if(todo.file_path)
+              <div style="margin-top: 10px;">
+                <img src="{{ todo.file_path }}" style="max-width: 150px; border-radius: 8px; border: 1px solid #eee;">
+              </div>
+            @end
+          </div>
+          
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <form action="/todos/complete/{{ todo.id }}" method="post" style="margin: 0;">
+              {{ csrfField() }}
+              <button type="submit" class="{{ todo.is_completed ? 'btn-warning' : 'btn-success' }}">
+                {{ todo.is_completed ? '↩️' : '✅' }}
+              </button>
+            </form>
+
+            <a href="/todos/edit/{{ todo.id }}" style="text-decoration: none;">
+              <button type="button" class="btn-success" style="background: #e2e8f0; border-radius: 8px; padding: 10px;" title="Bearbeiten">✏️</button>
+            </a>
+
+            <form action="/todos/delete/{{ todo.id }}" method="post" style="margin: 0;">
+              {{ csrfField() }}
+              <button type="submit" class="btn-danger" title="Löschen">🗑️</button>
+            </form>
+          </div>
+
+        </li>
+      @end
+    </ul>
+  </div>
+
+</body>
+</html>
