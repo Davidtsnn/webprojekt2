@@ -235,3 +235,11 @@ router.post('/habits/delete/:id', async ({ params, response }) => {
   await db.from('habits').where('id', params.id).delete()
   return response.redirect('/habits')
 })
+
+
+// QUADRANT SPEICHERN (Eisenhower)
+router.post('/todos/quadrant/:id', async ({ params, request, response }) => {
+  const quadrant = request.input('quadrant')
+  await db.from('todos').where('id', params.id).update({ quadrant: quadrant })
+  return response.json({ success: true })
+})
