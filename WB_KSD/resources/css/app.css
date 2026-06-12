@@ -3,10 +3,10 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #f7f9fc; /* Sehr helles, modernes Grau-Blau */
+  background-color: #f7f9fc;
   color: #1a202c;
   margin: 0;
-  padding: 40px 20px;
+  padding: 0;  /* ← von 40px 20px auf 0 ändern */
 }
 
 .container {
@@ -485,3 +485,4 @@ body {
   .sidebar { display: none; }
   .main-content { margin-left: 0; padding: 20px; }
 }
+

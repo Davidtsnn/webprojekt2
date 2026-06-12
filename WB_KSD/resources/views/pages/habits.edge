@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gewohnheiten – LifeSync</title>
+  @vite(['resources/css/app.css'])
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">🔄</div>
+      <div>
+        <span class="sidebar-brand-name">LifeSync</span>
+        <span class="sidebar-brand-sub">Digital Sanctuary</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/"><span>🏠</span> Übersicht</a>
+      <a href="/todos"><span>📋</span> Aufgaben</a>
+      <a href="/calendar"><span>📅</span> Kalender</a>
+      <a href="/focus"><span>⏱️</span> Fokus-Timer</a>
+      <a href="/habits" class="active"><span>🔁</span> Gewohnheiten</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <div class="page-header">
+      <h1 class="page-title">🔁 Gewohnheiten</h1>
+    </div>
+
+    <form action="/habits/create" method="post" class="add-todo-form">
+      {{ csrfField() }}
+      <input type="text" name="name" placeholder="Neue Gewohnheit (z.B. Wasser trinken)" required>
+      <div class="add-todo-row">
+        <select name="category">
+          <option value="Gesundheit">💪 Gesundheit</option>
+          <option value="Lernen">📚 Lernen</option>
+          <option value="Sport">🏃 Sport</option>
+          <option value="Ernährung">🥗 Ernährung</option>
+          <option value="Mindfulness">🧘 Mindfulness</option>
+        </select>
+        <button type="submit" class="btn btn-primary">+ Hinzufügen</button>
+      </div>
+    </form>
+
+    <div class="section-title">📅 Heute</div>
+
+    <ul class="habit-list">
+      @each(habit in habits)
+        <li class="habit-card">
+          <div class="habit-info">
+            <strong>{{ habit.name }}</strong>
+            <small>{{ habit.category }}</small>
+          </div>
+          @if(habit.isDoneToday)
+            <span class="fire-badge">🔥 Geschafft!</span>
+          @else
+            <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
+              {{ csrfField() }}
+              <button type="submit" class="btn btn-ghost">✅ Erledigt</button>
+            </form>
+          @end
+        </li>
+      @end
+    </ul>
+
+    <hr class="section-divider">
+
+    <div class="section-title">⚙️ Verwalten</div>
+
+    <ul class="habit-list">
+      @each(habit in habits)
+        <li class="habit-card">
+          <div class="habit-info">
+            <strong>{{ habit.name }}</strong>
+            <small>{{ habit.category }}</small>
+          </div>
+          <form action="/habits/delete/{{ habit.id }}" method="post" style="margin:0;">
+            {{ csrfField() }}
+            <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
+          </form>
+        </li>
+      @end
+    </ul>
+
+  </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Aufgaben – LifeSync</title>
+  @vite(['resources/css/app.css'])
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">🔄</div>
+      <div>
+        <span class="sidebar-brand-name">LifeSync</span>
+        <span class="sidebar-brand-sub">Digital Sanctuary</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/"><span>🏠</span> Übersicht</a>
+      <a href="/todos" class="active"><span>📋</span> Aufgaben</a>
+      <a href="/calendar"><span>📅</span> Kalender</a>
+      <a href="/focus"><span>⏱️</span> Fokus-Timer</a>
+      <a href="/habits"><span>🔁</span> Gewohnheiten</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <div class="page-header">
+      <h1 class="page-title">📋 Aufgaben</h1>
+    </div>
+
+    <div class="filter-tabs">
+      <a href="/todos" class="filter-tab {{ !currentCategory ? 'active' : '' }}">Alle</a>
+      <a href="/todos?category=Uni" class="filter-tab {{ currentCategory === 'Uni' ? 'active' : '' }}">🎓 Uni</a>
+      <a href="/todos?category=Haushalt" class="filter-tab {{ currentCategory === 'Haushalt' ? 'active' : '' }}">🏠 Haushalt</a>
+      <a href="/todos?category=Freizeit" class="filter-tab {{ currentCategory === 'Freizeit' ? 'active' : '' }}">🎈 Freizeit</a>
+    </div>
+
+    <form action="/todos/create" method="post" enctype="multipart/form-data" class="add-todo-form">
+      {{ csrfField() }}
+      <input type="text" name="title" placeholder="Was ist zu tun?" required>
+      <div class="add-todo-row">
+        <input type="date" name="due_date">
+        <select name="category">
+          <option value="Uni">🎓 Uni</option>
+          <option value="Haushalt">🏠 Haushalt</option>
+          <option value="Freizeit">🎈 Freizeit</option>
+        </select>
+        <select name="priority">
+          <option value="Niedrig">🟢 Niedrig</option>
+          <option value="Mittel">🟡 Mittel</option>
+          <option value="Hoch">🔴 Hoch</option>
+        </select>
+      </div>
+      <div class="add-todo-row">
+        <input type="file" name="image" accept="image/*">
+        <button type="submit" class="btn btn-primary">+ Hinzufügen</button>
+      </div>
+    </form>
+
+    <div class="columns">
+
+      <div>
+        <div class="column-header">
+          <div class="column-label"><span class="dot dot-red"></span> Dringend</div>
+        </div>
+        @each(todo in todos)
+          @if(todo.priority === 'Hoch' && !todo.is_completed)
+            <div class="todo-card">
+              <div class="todo-card-top">
+                <span class="category-badge badge-{{ todo.category ? todo.category.toLowerCase() : 'uni' }}">{{ todo.category }}</span>
+                <div class="todo-card-actions">
+                  <form action="/todos/complete/{{ todo.id }}" method="post" style="margin:0;">
+                    {{ csrfField() }}
+                    <button type="submit" class="btn-icon">✅</button>
+                  </form>
+                  <a href="/todos/edit/{{ todo.id }}"><button type="button" class="btn-icon">✏️</button></a>
+                  <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
+                    {{ csrfField() }}
+                    <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
+                  </form>
+                </div>
+              </div>
+              <div class="todo-card-title">{{ todo.title }}</div>
+              <div class="todo-card-meta">
+                @if(todo.due_date)
+                <span>📅 {{ todo.due_date }}</span>
+                @end
+              </div>
+            </div>
+          @end
+        @end
+      </div>
+
+      <div>
+        <div class="column-header">
+          <div class="column-label"><span class="dot dot-green"></span> Diese Woche</div>
+        </div>
+        @each(todo in todos)
+          @if(todo.priority === 'Mittel' && !todo.is_completed)
+            <div class="todo-card">
+              <div class="todo-card-top">
+                <span class="category-badge badge-{{ todo.category ? todo.category.toLowerCase() : 'uni' }}">{{ todo.category }}</span>
+                <div class="todo-card-actions">
+                  <form action="/todos/complete/{{ todo.id }}" method="post" style="margin:0;">
+                    {{ csrfField() }}
+                    <button type="submit" class="btn-icon">✅</button>
+                  </form>
+                  <a href="/todos/edit/{{ todo.id }}"><button type="button" class="btn-icon">✏️</button></a>
+                  <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
+                    {{ csrfField() }}
+                    <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
+                  </form>
+                </div>
+              </div>
+              <div class="todo-card-title">{{ todo.title }}</div>
+              <div class="todo-card-meta">
+                @if(todo.due_date)
+                <span>📅 {{ todo.due_date }}</span>
+                @end
+              </div>
+            </div>
+          @end
+        @end
+      </div>
+
+      <div>
+        <div class="column-header">
+          <div class="column-label"><span class="dot dot-gray"></span> Später / Erledigt</div>
+        </div>
+        @each(todo in todos)
+          @if(todo.priority === 'Niedrig' || todo.is_completed)
+            <div class="todo-card {{ todo.is_completed ? 'completed' : '' }}">
+              <div class="todo-card-top">
+                <span class="category-badge badge-{{ todo.category ? todo.category.toLowerCase() : 'uni' }}">{{ todo.category }}</span>
+                <div class="todo-card-actions">
+                  <form action="/todos/complete/{{ todo.id }}" method="post" style="margin:0;">
+                    {{ csrfField() }}
+                    <button type="submit" class="btn-icon">{{ todo.is_completed ? '↩️' : '✅' }}</button>
+                  </form>
+                  <a href="/todos/edit/{{ todo.id }}"><button type="button" class="btn-icon">✏️</button></a>
+                  <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
+                    {{ csrfField() }}
+                    <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
+                  </form>
+                </div>
+              </div>
+              <div class="todo-card-title {{ todo.is_completed ? 'done' : '' }}">{{ todo.title }}</div>
+              <div class="todo-card-meta">
+                @if(todo.due_date)
+                <span>📅 {{ todo.due_date }}</span>
+                @end
+              </div>
+            </div>
+          @end
+        @end
+      </div>
+
+    </div>
+  </main>
+</div>
+
+</body>
+</html>
