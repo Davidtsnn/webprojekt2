@@ -29,16 +29,12 @@
 
     <div class="page-header">
       <h1 class="page-title">📋 Aufgaben</h1>
+      <button class="btn btn-primary" onclick="document.getElementById('add-form').style.display = document.getElementById('add-form').style.display === 'none' ? 'flex' : 'none'">
+        + Neue Aufgabe
+      </button>
     </div>
 
-    <div class="filter-tabs">
-      <a href="/todos" class="filter-tab {{ !currentCategory ? 'active' : '' }}">Alle</a>
-      <a href="/todos?category=Uni" class="filter-tab {{ currentCategory === 'Uni' ? 'active' : '' }}">🎓 Uni</a>
-      <a href="/todos?category=Haushalt" class="filter-tab {{ currentCategory === 'Haushalt' ? 'active' : '' }}">🏠 Haushalt</a>
-      <a href="/todos?category=Freizeit" class="filter-tab {{ currentCategory === 'Freizeit' ? 'active' : '' }}">🎈 Freizeit</a>
-    </div>
-
-    <form action="/todos/create" method="post" enctype="multipart/form-data" class="add-todo-form">
+    <form id="add-form" action="/todos/create" method="post" enctype="multipart/form-data" class="add-todo-form" style="display:none;">
       {{ csrfField() }}
       <input type="text" name="title" placeholder="Was ist zu tun?" required>
       <div class="add-todo-row">
@@ -56,111 +52,170 @@
       </div>
       <div class="add-todo-row">
         <input type="file" name="image" accept="image/*">
-        <button type="submit" class="btn btn-primary">+ Hinzufügen</button>
+        <button type="submit" class="btn btn-primary">💾 Speichern</button>
       </div>
     </form>
 
-    <div class="columns">
+    <div class="eisenhower-layout">
 
-      <div>
-        <div class="column-header">
-          <div class="column-label"><span class="dot dot-red"></span> Dringend</div>
+      {{-- INBOX --}}
+      <div class="inbox-col">
+        <div class="inbox-header">
+          <span>📥 Inbox</span>
+          <span class="column-count">{{ todos.filter(t => !t.quadrant).length }}</span>
         </div>
-        @each(todo in todos)
-          @if(todo.priority === 'Hoch' && !todo.is_completed)
-            <div class="todo-card">
-              <div class="todo-card-top">
-                <span class="category-badge badge-{{ todo.category ? todo.category.toLowerCase() : 'uni' }}">{{ todo.category }}</span>
-                <div class="todo-card-actions">
-                  <form action="/todos/complete/{{ todo.id }}" method="post" style="margin:0;">
-                    {{ csrfField() }}
-                    <button type="submit" class="btn-icon">✅</button>
-                  </form>
-                  <a href="/todos/edit/{{ todo.id }}"><button type="button" class="btn-icon">✏️</button></a>
-                  <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
-                    {{ csrfField() }}
-                    <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
-                  </form>
-                </div>
+        <div class="inbox-list" id="inbox" ondragover="allowDrop(event)" ondrop="drop(event, null)">
+          @each(todo in todos)
+            @if(!todo.quadrant)
+              <div class="inbox-chip" draggable="true" ondragstart="drag(event, {{ todo.id }})">
+                <span class="drag-handle">⠿</span>
+                <span>{{ todo.title }}</span>
               </div>
-              <div class="todo-card-title">{{ todo.title }}</div>
-              <div class="todo-card-meta">
-                @if(todo.due_date)
-                <span>📅 {{ todo.due_date }}</span>
-                @end
-              </div>
-            </div>
+            @end
           @end
-        @end
+        </div>
       </div>
 
-      <div>
-        <div class="column-header">
-          <div class="column-label"><span class="dot dot-green"></span> Diese Woche</div>
+      {{-- MATRIX --}}
+      <div class="matrix-col">
+        <div class="matrix-axis-row">
+          <span class="axis-label">← dringend</span>
+          <span class="axis-label">nicht dringend →</span>
         </div>
-        @each(todo in todos)
-          @if(todo.priority === 'Mittel' && !todo.is_completed)
-            <div class="todo-card">
-              <div class="todo-card-top">
-                <span class="category-badge badge-{{ todo.category ? todo.category.toLowerCase() : 'uni' }}">{{ todo.category }}</span>
-                <div class="todo-card-actions">
-                  <form action="/todos/complete/{{ todo.id }}" method="post" style="margin:0;">
-                    {{ csrfField() }}
-                    <button type="submit" class="btn-icon">✅</button>
-                  </form>
-                  <a href="/todos/edit/{{ todo.id }}"><button type="button" class="btn-icon">✏️</button></a>
-                  <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
-                    {{ csrfField() }}
-                    <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
-                  </form>
-                </div>
-              </div>
-              <div class="todo-card-title">{{ todo.title }}</div>
-              <div class="todo-card-meta">
-                @if(todo.due_date)
-                <span>📅 {{ todo.due_date }}</span>
-                @end
-              </div>
-            </div>
-          @end
-        @end
-      </div>
 
-      <div>
-        <div class="column-header">
-          <div class="column-label"><span class="dot dot-gray"></span> Später / Erledigt</div>
+        <div class="matrix-grid">
+
+          {{-- Sofort erledigen --}}
+          <div class="quadrant q-do" ondragover="allowDrop(event)" ondrop="drop(event, 'do')">
+            <div class="q-label q-do-label">SOFORT ERLEDIGEN</div>
+            <div class="q-sublabel">Wichtig + Dringend</div>
+            @each(todo in todos)
+              @if(todo.quadrant === 'do')
+                <div class="q-card q-do-card" draggable="true" ondragstart="drag(event, {{ todo.id }})">
+                  <span class="cat-badge cat-{{ todo.category ? todo.category.toLowerCase() : 'uni' }}">{{ todo.category }}</span>
+                  <div class="q-card-title">{{ todo.title }}</div>
+                  <div class="q-card-actions">
+                    <form action="/todos/complete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon">{{ todo.is_completed ? '↩️' : '✅' }}</button>
+                    </form>
+                    <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
+                    </form>
+                  </div>
+                </div>
+              @end
+            @end
+            <div class="drop-hint">+ hierher ziehen</div>
+          </div>
+
+          {{-- Einplanen --}}
+          <div class="quadrant q-plan" ondragover="allowDrop(event)" ondrop="drop(event, 'plan')">
+            <div class="q-label q-plan-label">EINPLANEN</div>
+            <div class="q-sublabel">Wichtig + Nicht dringend</div>
+            @each(todo in todos)
+              @if(todo.quadrant === 'plan')
+                <div class="q-card q-plan-card" draggable="true" ondragstart="drag(event, {{ todo.id }})">
+                  <span class="cat-badge cat-{{ todo.category ? todo.category.toLowerCase() : 'uni' }}">{{ todo.category }}</span>
+                  <div class="q-card-title">{{ todo.title }}</div>
+                  <div class="q-card-actions">
+                    <form action="/todos/complete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon">{{ todo.is_completed ? '↩️' : '✅' }}</button>
+                    </form>
+                    <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
+                    </form>
+                  </div>
+                </div>
+              @end
+            @end
+            <div class="drop-hint">+ hierher ziehen</div>
+          </div>
+
+          {{-- Delegieren --}}
+          <div class="quadrant q-delegate" ondragover="allowDrop(event)" ondrop="drop(event, 'delegate')">
+            <div class="q-label q-delegate-label">DELEGIEREN</div>
+            <div class="q-sublabel">Unwichtig + Dringend</div>
+            @each(todo in todos)
+              @if(todo.quadrant === 'delegate')
+                <div class="q-card q-delegate-card" draggable="true" ondragstart="drag(event, {{ todo.id }})">
+                  <span class="cat-badge cat-{{ todo.category ? todo.category.toLowerCase() : 'uni' }}">{{ todo.category }}</span>
+                  <div class="q-card-title">{{ todo.title }}</div>
+                  <div class="q-card-actions">
+                    <form action="/todos/complete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon">{{ todo.is_completed ? '↩️' : '✅' }}</button>
+                    </form>
+                    <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
+                    </form>
+                  </div>
+                </div>
+              @end
+            @end
+            <div class="drop-hint">+ hierher ziehen</div>
+          </div>
+
+          {{-- Weglassen --}}
+          <div class="quadrant q-drop" ondragover="allowDrop(event)" ondrop="drop(event, 'drop')">
+            <div class="q-label q-drop-label">WEGLASSEN</div>
+            <div class="q-sublabel">Unwichtig + Nicht dringend</div>
+            @each(todo in todos)
+              @if(todo.quadrant === 'drop')
+                <div class="q-card q-drop-card" draggable="true" ondragstart="drag(event, {{ todo.id }})">
+                  <span class="cat-badge cat-{{ todo.category ? todo.category.toLowerCase() : 'uni' }}">{{ todo.category }}</span>
+                  <div class="q-card-title">{{ todo.title }}</div>
+                  <div class="q-card-actions">
+                    <form action="/todos/complete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon">{{ todo.is_completed ? '↩️' : '✅' }}</button>
+                    </form>
+                    <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
+                    </form>
+                  </div>
+                </div>
+              @end
+            @end
+            <div class="drop-hint">+ hierher ziehen</div>
+          </div>
+
         </div>
-        @each(todo in todos)
-          @if(todo.priority === 'Niedrig' || todo.is_completed)
-            <div class="todo-card {{ todo.is_completed ? 'completed' : '' }}">
-              <div class="todo-card-top">
-                <span class="category-badge badge-{{ todo.category ? todo.category.toLowerCase() : 'uni' }}">{{ todo.category }}</span>
-                <div class="todo-card-actions">
-                  <form action="/todos/complete/{{ todo.id }}" method="post" style="margin:0;">
-                    {{ csrfField() }}
-                    <button type="submit" class="btn-icon">{{ todo.is_completed ? '↩️' : '✅' }}</button>
-                  </form>
-                  <a href="/todos/edit/{{ todo.id }}"><button type="button" class="btn-icon">✏️</button></a>
-                  <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
-                    {{ csrfField() }}
-                    <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
-                  </form>
-                </div>
-              </div>
-              <div class="todo-card-title {{ todo.is_completed ? 'done' : '' }}">{{ todo.title }}</div>
-              <div class="todo-card-meta">
-                @if(todo.due_date)
-                <span>📅 {{ todo.due_date }}</span>
-                @end
-              </div>
-            </div>
-          @end
-        @end
       </div>
-
     </div>
+
   </main>
 </div>
+
+<script>
+  let draggedId = null
+
+  function drag(event, id) {
+    draggedId = id
+  }
+
+  function allowDrop(event) {
+    event.preventDefault()
+  }
+
+  function drop(event, quadrant) {
+    event.preventDefault()
+    if (draggedId === null) return
+
+    fetch('/todos/quadrant/' + draggedId, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
+      body: JSON.stringify({ quadrant: quadrant })
+    }).then(() => {
+      window.location.reload()
+    })
+  }
+</script>
 
 </body>
 </html>
