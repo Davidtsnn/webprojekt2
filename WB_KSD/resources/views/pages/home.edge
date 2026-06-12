@@ -6,6 +6,31 @@
   @vite(['resources/css/app.css'])
 </head>
 <body>
+
+  {{--KimÄnderungen--}}
+  <div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">🔄</div>
+      <div>
+        <span class="sidebar-brand-name">LifeSync</span>
+        <span class="sidebar-brand-sub">Digital Sanctuary</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="/" class="active"><span>🏠</span> Übersicht</a>
+      <a href="/todos"><span>📋</span> Aufgaben</a>
+      <a href="/calendar"><span>📅</span> Kalender</a>
+      <a href="/focus"><span>⏱️</span> Fokus-Timer</a>
+      <a href="/habits"><span>🔁</span> Gewohnheiten</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    {{--EndeKim--}}
   
   <div class="container">
     <h1>Mein Habit-Dashboard</h1>
@@ -110,5 +135,9 @@
     </ul>
   </div>
 
+  </main>
+</div>
+
 </body>
 </html>
+
