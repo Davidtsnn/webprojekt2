@@ -486,3 +486,153 @@ body {
   .main-content { margin-left: 0; padding: 20px; }
 }
 
+/* ── Eisenhower Layout ── */
+.eisenhower-layout {
+  display: flex;
+  gap: 16px;
+  height: calc(100vh - 180px);
+}
+
+.inbox-col {
+  width: 200px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inbox-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.inbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-height: 60px;
+  border-radius: var(--radius-sm);
+  padding: 4px;
+}
+
+.inbox-chip {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: grab;
+}
+
+.drag-handle {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.matrix-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.matrix-axis-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 0 4px;
+}
+
+.matrix-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+  flex: 1;
+}
+
+.quadrant {
+  border-radius: var(--radius);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 120px;
+}
+
+.q-do    { background: #fee2e2; border: 1px solid #fca5a5; }
+.q-plan  { background: #dcfce7; border: 1px solid #86efac; }
+.q-delegate { background: #fef9c3; border: 1px solid #fde047; }
+.q-drop  { background: #f1f0e8; border: 1px solid #d3d1c7; }
+
+.q-label { font-size: 10px; font-weight: 600; letter-spacing: 0.4px; }
+.q-do-label       { color: #b91c1c; }
+.q-plan-label     { color: #15803d; }
+.q-delegate-label { color: #a16207; }
+.q-drop-label     { color: #5f5e5a; }
+
+.q-sublabel { font-size: 10px; margin-bottom: 4px; color: inherit; opacity: 0.7; }
+
+.q-card {
+  background: white;
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-size: 12px;
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.q-do-card       { border-left: 3px solid #ef4444; }
+.q-plan-card     { border-left: 3px solid #22c55e; }
+.q-delegate-card { border-left: 3px solid #eab308; }
+.q-drop-card     { border-left: 3px solid #a3a3a3; }
+
+.q-card-title { font-weight: 500; color: var(--text); }
+
+.q-card-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.drop-hint {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+  border: 1.5px dashed var(--border);
+  border-radius: 6px;
+  padding: 6px;
+  margin-top: auto;
+}
+
+.cat-badge {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.cat-uni      { background: #eef1fe; color: #4f6ef7; }
+.cat-haushalt { background: #dcfce7; color: #15803d; }
+.cat-freizeit { background: #fff7ed; color: #f97316; }
