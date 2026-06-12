@@ -100,7 +100,7 @@ router.post('/todos/create', async ({ request, response }) => {
     
   })
 
-  return response.redirect('/')
+  return response.redirect('/todos')
 })
 
 // To-Do löschen

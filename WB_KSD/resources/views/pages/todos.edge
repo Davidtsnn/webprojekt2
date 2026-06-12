@@ -7,7 +7,7 @@
 <body>
 
   <meta name="csrf-token" content="{{ csrfToken }}">
-  
+
 <div class="app-layout">
 
   <aside class="sidebar">
@@ -31,32 +31,8 @@
 
     <div class="page-header">
       <h1 class="page-title">📋 Aufgaben</h1>
-      <button class="btn btn-primary" onclick="document.getElementById('add-form').style.display = document.getElementById('add-form').style.display === 'none' ? 'flex' : 'none'">
-        + Neue Aufgabe
-      </button>
     </div>
 
-    <form id="add-form" action="/todos/create" method="post" enctype="multipart/form-data" class="add-todo-form" style="display:none;">
-      {{ csrfField() }}
-      <input type="text" name="title" placeholder="Was ist zu tun?" required>
-      <div class="add-todo-row">
-        <input type="date" name="due_date">
-        <select name="category">
-          <option value="Uni">🎓 Uni</option>
-          <option value="Haushalt">🏠 Haushalt</option>
-          <option value="Freizeit">🎈 Freizeit</option>
-        </select>
-        <select name="priority">
-          <option value="Niedrig">🟢 Niedrig</option>
-          <option value="Mittel">🟡 Mittel</option>
-          <option value="Hoch">🔴 Hoch</option>
-        </select>
-      </div>
-      <div class="add-todo-row">
-        <input type="file" name="image" accept="image/*">
-        <button type="submit" class="btn btn-primary">💾 Speichern</button>
-      </div>
-    </form>
 
     <div class="eisenhower-layout">
 
@@ -66,6 +42,21 @@
           <span>📥 Inbox</span>
           <span class="column-count">{{ todos.filter(t => !t.quadrant).length }}</span>
         </div>
+        <form action="/todos/create" method="post" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:6px;">
+          {{ csrfField() }}
+          <input type="text" name="title" placeholder="+ Aufgabe hinzufügen..." required style="padding:8px 10px; border-radius:8px; border:1px solid var(--border); font-size:13px; background:var(--bg);">
+          <select name="category" style="padding:8px; border-radius:8px; border:1px solid var(--border); font-size:12px;">
+            <option value="Uni">🎓 Uni</option>
+            <option value="Haushalt">🏠 Haushalt</option>
+            <option value="Freizeit">🎈 Freizeit</option>
+          </select>
+          <select name="priority" style="padding:8px; border-radius:8px; border:1px solid var(--border); font-size:12px;">
+            <option value="Niedrig">🟢 Niedrig</option>
+            <option value="Mittel">🟡 Mittel</option>
+            <option value="Hoch">🔴 Hoch</option>
+          </select>
+          <button type="submit" class="btn btn-primary" style="font-size:13px;">+ Hinzufügen</button>
+        </form>
         <div class="inbox-list" id="inbox" ondragover="allowDrop(event)" ondrop="drop(event, null)">
           @each(todo in todos)
             @if(!todo.quadrant)
