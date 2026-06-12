@@ -233,7 +233,7 @@ router.get('/habits', async ({ view }) => {
 // HABIT LÖSCHEN
 router.post('/habits/delete/:id', async ({ params, response }) => {
   await db.from('habits').where('id', params.id).delete()
-  return response.redirect('/habits')
+  return response.redirect('/todos')
 })
 
 
