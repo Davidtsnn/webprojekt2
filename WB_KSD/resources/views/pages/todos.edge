@@ -62,10 +62,10 @@
     <button type="submit" class="btn btn-primary" style="font-size:13px;">+ Hinzufügen</button>
   </div>
 </form>
-        <div class="inbox-list" id="inbox" ondragover="allowDrop(event)" ondrop="drop(event, null)">
+        <div class="inbox-list" id="inbox" ondragover="allowDrop(event)">
           @each(todo in todos)
             @if(!todo.quadrant)
-              <div class="inbox-chip" draggable="true" ondragstart="drag(event, {{ todo.id }})">
+              <div class="inbox-chip" data-id="{{ todo.id }}" draggable="true" ondragstart="drag(event, {{ todo.id }})" ondragover="allowDrop(event)" ondrop="dropOnChip(event, {{ todo.id }})">
                 <span class="drag-handle">⠿</span>
                 <span>{{ todo.title }}</span>
               </div>
@@ -192,9 +192,11 @@
 
 <script>
   let draggedId = null
+  let draggedElement = null
 
   function drag(event, id) {
     draggedId = id
+    draggedElement = event.currentTarget
   }
 
   function allowDrop(event) {
@@ -205,15 +207,73 @@
     event.preventDefault()
     if (draggedId === null) return
 
+    const target = event.target.closest('.inbox-chip')
+
+    if (quadrant === null && draggedElement && draggedElement.classList.contains('inbox-chip')) {
+      if (target && target !== draggedElement) {
+        const inbox = document.getElementById('inbox')
+        const chips = [...inbox.querySelectorAll('.inbox-chip')]
+        const targetIndex = chips.indexOf(target)
+        const draggedIndex = chips.indexOf(draggedElement)
+
+        if (draggedIndex < targetIndex) {
+          inbox.insertBefore(draggedElement, target.nextSibling)
+        } else {
+          inbox.insertBefore(draggedElement, target)
+        }
+
+        const newOrder = [...inbox.querySelectorAll('.inbox-chip')].map(el => el.dataset.id)
+        fetch('/todos/reorder', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+          },
+          body: JSON.stringify({ order: newOrder })
+        })
+      }
+      return
+    }
+
     fetch('/todos/quadrant/' + draggedId, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+      },
       body: JSON.stringify({ quadrant: quadrant })
     }).then(() => {
       window.location.reload()
     })
   }
-</script>
 
-</body>
-</html>
+  function dropOnChip(event, targetId) {
+  event.preventDefault()
+  event.stopPropagation()
+  if (draggedId === null || String(draggedId) === String(targetId)) return
+  if (!draggedElement || !draggedElement.classList.contains('inbox-chip')) return
+
+  const inbox = document.getElementById('inbox')
+  const target = inbox.querySelector('[data-id="' + String(targetId) + '"]')
+  
+  const chips = [...inbox.querySelectorAll('.inbox-chip')]
+  const draggedIndex = chips.indexOf(draggedElement)
+  const targetIndex = chips.indexOf(target)
+
+  if (draggedIndex < targetIndex) {
+    inbox.insertBefore(draggedElement, target.nextSibling)
+  } else {
+    inbox.insertBefore(draggedElement, target)
+  }
+
+  const newOrder = [...inbox.querySelectorAll('.inbox-chip')].map(el => el.dataset.id)
+  fetch('/todos/reorder', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+    },
+    body: JSON.stringify({ order: newOrder })
+  })
+}
+</script>

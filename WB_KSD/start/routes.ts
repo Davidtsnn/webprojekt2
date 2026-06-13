@@ -204,7 +204,7 @@ router.get('/calendar', async ({ view }) => {
 // TODOS SEITE
 router.get('/todos', async ({ view, request }) => {
   const category = request.qs().category
-  let query = db.from('todos').select('*')
+  let query = db.from('todos').select('*').orderBy('sort_order', 'asc')
   if (category) {
     query = query.where('category', category)
   }
@@ -241,5 +241,15 @@ router.post('/habits/delete/:id', async ({ params, response }) => {
 router.post('/todos/quadrant/:id', async ({ params, request, response }) => {
   const quadrant = request.input('quadrant')
   await db.from('todos').where('id', params.id).update({ quadrant: quadrant })
+  return response.json({ success: true })
+})
+
+
+// REIHENFOLGE IN INBOX SPEICHERN
+router.post('/todos/reorder', async ({ request, response }) => {
+  const order = request.input('order') // Array von IDs
+  for (let i = 0; i < order.length; i++) {
+    await db.from('todos').where('id', order[i]).update({ sort_order: i })
+  }
   return response.json({ success: true })
 })
