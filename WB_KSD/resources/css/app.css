@@ -1243,8 +1243,6 @@ body {
 .cat-uni      { background: #eef1fe; color: #4f6ef7; }
 .cat-haushalt { background: #dcfce7; color: #15803d; }
 .cat-freizeit { background: #fff7ed; color: #f97316; }
-  color: #4338ca;
-}
 
 .progress-container {
   display: flex;
