@@ -6,6 +6,43 @@
 </head>
 
 <body>
+
+  {{--KimÄnderungen--}}
+  <div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">🔄</div>
+      <div>
+        <span class="sidebar-brand-name">LifeSync</span>
+        <span class="sidebar-brand-sub">Digital Sanctuary</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="/" class="active"><span>🏠</span> Übersicht</a>
+      <a href="/todos"><span>📋</span> Aufgaben</a>
+      <a href="/calendar"><span>📅</span> Kalender</a>
+      <a href="/focus"><span>⏱️</span> Fokus-Timer</a>
+      <a href="/habits"><span>🔁</span> Gewohnheiten</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    {{--EndeKim--}}
+  
+  <div class="container">
+    <h1>Mein Habit-Dashboard</h1>
+
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px;">
+      <a href="/calendar" style="text-decoration: none;">
+        <button class="btn-success" style="background-color: #e2e8f0; color: #2d3748;">📅 Kalender</button>
+      </a>
+      <a href="/focus" style="text-decoration: none;">
+        <button class="btn-primary">⏱️ Zum Fokus Timer</button>
+      </a>
+    </div>
   <div class="page-bg">
     <div class="tablet-shell">
 
@@ -214,6 +251,12 @@
       <button onclick="closeProfEgg()">Sehr gut!</button>
     </div>
   </div>
+
+  </main>
+</div>
+
+</body>
+</html>
 
 <script>
 function taskFirework(event, card) {

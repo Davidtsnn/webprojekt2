@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Aufgaben – LifeSync</title>
+  @vite(['resources/css/app.css'])
+</head>
+<body>
+
+  <meta name="csrf-token" content="{{ csrfToken }}">
+
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">🔄</div>
+      <div>
+        <span class="sidebar-brand-name">LifeSync</span>
+        <span class="sidebar-brand-sub">Digital Sanctuary</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/"><span>🏠</span> Übersicht</a>
+      <a href="/todos" class="active"><span>📋</span> Aufgaben</a>
+      <a href="/calendar"><span>📅</span> Kalender</a>
+      <a href="/focus"><span>⏱️</span> Fokus-Timer</a>
+      <a href="/habits"><span>🔁</span> Gewohnheiten</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <div class="page-header">
+      <h1 class="page-title">📋 Aufgaben</h1>
+    </div>
+
+
+    <div class="eisenhower-layout">
+
+      {{-- INBOX --}}
+      <div class="inbox-col">
+        <div class="inbox-header">
+          <span>📥 Inbox</span>
+          <span class="column-count">{{ todos.filter(t => !t.quadrant).length }}</span>
+        </div>
+        <form action="/todos/create" method="post" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:6px;">
+          {{ csrfField() }}
+          <input type="text" name="title" placeholder="+ Aufgabe hinzufügen..." required style="padding:8px 10px; border-radius:8px; border:1px solid var(--border); font-size:13px; background:var(--bg);">
+          <select name="category" style="padding:8px; border-radius:8px; border:1px solid var(--border); font-size:12px;">
+            <option value="Uni">🎓 Uni</option>
+            <option value="Haushalt">🏠 Haushalt</option>
+            <option value="Freizeit">🎈 Freizeit</option>
+          </select>
+          <select name="priority" style="padding:8px; border-radius:8px; border:1px solid var(--border); font-size:12px;">
+            <option value="Niedrig">🟢 Niedrig</option>
+            <option value="Mittel">🟡 Mittel</option>
+            <option value="Hoch">🔴 Hoch</option>
+          </select>
+          <button type="submit" class="btn btn-primary" style="font-size:13px;">+ Hinzufügen</button>
+        </form>
+        <div class="inbox-list" id="inbox" ondragover="allowDrop(event)" ondrop="drop(event, null)">
+          @each(todo in todos)
+            @if(!todo.quadrant)
+              <div class="inbox-chip" draggable="true" ondragstart="drag(event, {{ todo.id }})">
+                <span class="drag-handle">⠿</span>
+                <span>{{ todo.title }}</span>
+              </div>
+            @end
+          @end
+        </div>
+      </div>
+
+      {{-- MATRIX --}}
+      <div class="matrix-col">
+        <div class="matrix-axis-row">
+          <span class="axis-label">← dringend</span>
+          <span class="axis-label">nicht dringend →</span>
+        </div>
+
+        <div class="matrix-grid">
+
+          {{-- Sofort erledigen --}}
+          <div class="quadrant q-do" ondragover="allowDrop(event)" ondrop="drop(event, 'do')">
+            <div class="q-label q-do-label">SOFORT ERLEDIGEN</div>
+            <div class="q-sublabel">Wichtig + Dringend</div>
+            @each(todo in todos)
+              @if(todo.quadrant === 'do')
+                <div class="q-card q-do-card" draggable="true" ondragstart="drag(event, {{ todo.id }})">
+                  <span class="cat-badge cat-{{ todo.category ? todo.category.toLowerCase() : 'uni' }}">{{ todo.category }}</span>
+                  <div class="q-card-title">{{ todo.title }}</div>
+                  <div class="q-card-actions">
+                    <form action="/todos/complete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon">{{ todo.is_completed ? '↩️' : '✅' }}</button>
+                    </form>
+                    <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
+                    </form>
+                  </div>
+                </div>
+              @end
+            @end
+            <div class="drop-hint">+ hierher ziehen</div>
+          </div>
+
+          {{-- Einplanen --}}
+          <div class="quadrant q-plan" ondragover="allowDrop(event)" ondrop="drop(event, 'plan')">
+            <div class="q-label q-plan-label">EINPLANEN</div>
+            <div class="q-sublabel">Wichtig + Nicht dringend</div>
+            @each(todo in todos)
+              @if(todo.quadrant === 'plan')
+                <div class="q-card q-plan-card" draggable="true" ondragstart="drag(event, {{ todo.id }})">
+                  <span class="cat-badge cat-{{ todo.category ? todo.category.toLowerCase() : 'uni' }}">{{ todo.category }}</span>
+                  <div class="q-card-title">{{ todo.title }}</div>
+                  <div class="q-card-actions">
+                    <form action="/todos/complete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon">{{ todo.is_completed ? '↩️' : '✅' }}</button>
+                    </form>
+                    <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
+                    </form>
+                  </div>
+                </div>
+              @end
+            @end
+            <div class="drop-hint">+ hierher ziehen</div>
+          </div>
+
+          {{-- Delegieren --}}
+          <div class="quadrant q-delegate" ondragover="allowDrop(event)" ondrop="drop(event, 'delegate')">
+            <div class="q-label q-delegate-label">DELEGIEREN</div>
+            <div class="q-sublabel">Unwichtig + Dringend</div>
+            @each(todo in todos)
+              @if(todo.quadrant === 'delegate')
+                <div class="q-card q-delegate-card" draggable="true" ondragstart="drag(event, {{ todo.id }})">
+                  <span class="cat-badge cat-{{ todo.category ? todo.category.toLowerCase() : 'uni' }}">{{ todo.category }}</span>
+                  <div class="q-card-title">{{ todo.title }}</div>
+                  <div class="q-card-actions">
+                    <form action="/todos/complete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon">{{ todo.is_completed ? '↩️' : '✅' }}</button>
+                    </form>
+                    <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
+                    </form>
+                  </div>
+                </div>
+              @end
+            @end
+            <div class="drop-hint">+ hierher ziehen</div>
+          </div>
+
+          {{-- Weglassen --}}
+          <div class="quadrant q-drop" ondragover="allowDrop(event)" ondrop="drop(event, 'drop')">
+            <div class="q-label q-drop-label">WEGLASSEN</div>
+            <div class="q-sublabel">Unwichtig + Nicht dringend</div>
+            @each(todo in todos)
+              @if(todo.quadrant === 'drop')
+                <div class="q-card q-drop-card" draggable="true" ondragstart="drag(event, {{ todo.id }})">
+                  <span class="cat-badge cat-{{ todo.category ? todo.category.toLowerCase() : 'uni' }}">{{ todo.category }}</span>
+                  <div class="q-card-title">{{ todo.title }}</div>
+                  <div class="q-card-actions">
+                    <form action="/todos/complete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon">{{ todo.is_completed ? '↩️' : '✅' }}</button>
+                    </form>
+                    <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
+                      {{ csrfField() }}
+                      <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
+                    </form>
+                  </div>
+                </div>
+              @end
+            @end
+            <div class="drop-hint">+ hierher ziehen</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let draggedId = null
+
+  function drag(event, id) {
+    draggedId = id
+  }
+
+  function allowDrop(event) {
+    event.preventDefault()
+  }
+
+  function drop(event, quadrant) {
+    event.preventDefault()
+    if (draggedId === null) return
+
+    fetch('/todos/quadrant/' + draggedId, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
+      body: JSON.stringify({ quadrant: quadrant })
+    }).then(() => {
+      window.location.reload()
+    })
+  }
+</script>
+
+</body>
+</html>

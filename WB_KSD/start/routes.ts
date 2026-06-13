@@ -100,7 +100,7 @@ router.post('/todos/create', async ({ request, response }) => {
     
   })
 
-  return response.redirect('/')
+  return response.redirect('/todos')
 })
 
 // To-Do löschen
@@ -198,4 +198,48 @@ router.get('/focus', async ({ view }) => {
 router.get('/calendar', async ({ view }) => {
   const todos = await db.from('todos').whereNotNull('due_date').select('*')
   return view.render('pages/calendar', { todos: todos })
+})
+
+
+// TODOS SEITE
+router.get('/todos', async ({ view, request }) => {
+  const category = request.qs().category
+  let query = db.from('todos').select('*')
+  if (category) {
+    query = query.where('category', category)
+  }
+  const todos = await query
+  return view.render('pages/todos', {
+    todos: todos,
+    currentCategory: category || null
+  })
+})
+
+// HABITS SEITE
+router.get('/habits', async ({ view }) => {
+  const habits = await db.from('habits').select('*')
+  const heute = new Date().toISOString().split('T')[0]
+  const logsHeute = await db.from('habit_logs').where('date', heute)
+  const habitsMitStatus = habits.map(habit => {
+    const istErledigt = logsHeute.find(log => log.habit_id === habit.id)
+    return { ...habit, isDoneToday: istErledigt ? true : false }
+  })
+  return view.render('pages/habits', {
+    habits: habitsMitStatus,
+    heute: heute
+  })
+})
+
+// HABIT LÖSCHEN
+router.post('/habits/delete/:id', async ({ params, response }) => {
+  await db.from('habits').where('id', params.id).delete()
+  return response.redirect('/todos')
+})
+
+
+// QUADRANT SPEICHERN (Eisenhower)
+router.post('/todos/quadrant/:id', async ({ params, request, response }) => {
+  const quadrant = request.input('quadrant')
+  await db.from('todos').where('id', params.id).update({ quadrant: quadrant })
+  return response.json({ success: true })
 })
