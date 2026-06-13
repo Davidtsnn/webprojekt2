@@ -43,20 +43,25 @@
           <span class="column-count">{{ todos.filter(t => !t.quadrant).length }}</span>
         </div>
         <form action="/todos/create" method="post" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:6px;">
-          {{ csrfField() }}
-          <input type="text" name="title" placeholder="+ Aufgabe hinzufügen..." required style="padding:8px 10px; border-radius:8px; border:1px solid var(--border); font-size:13px; background:var(--bg);">
-          <select name="category" style="padding:8px; border-radius:8px; border:1px solid var(--border); font-size:12px;">
-            <option value="Uni">🎓 Uni</option>
-            <option value="Haushalt">🏠 Haushalt</option>
-            <option value="Freizeit">🎈 Freizeit</option>
-          </select>
-          <select name="priority" style="padding:8px; border-radius:8px; border:1px solid var(--border); font-size:12px;">
-            <option value="Niedrig">🟢 Niedrig</option>
-            <option value="Mittel">🟡 Mittel</option>
-            <option value="Hoch">🔴 Hoch</option>
-          </select>
-          <button type="submit" class="btn btn-primary" style="font-size:13px;">+ Hinzufügen</button>
-        </form>
+  {{ csrfField() }}
+  <input type="text" name="title" placeholder="+ Aufgabe hinzufügen..." required
+    style="padding:8px 10px; border-radius:8px; border:1px solid var(--border); font-size:13px; background:var(--bg);"
+    oninput="document.getElementById('extra-fields').style.display = this.value.length > 0 ? 'flex' : 'none'">
+  
+  <div id="extra-fields" style="display:none; flex-direction:column; gap:6px;">
+    <select name="category" style="padding:8px; border-radius:8px; border:1px solid var(--border); font-size:12px;">
+      <option value="Uni">🎓 Uni</option>
+      <option value="Haushalt">🏠 Haushalt</option>
+      <option value="Freizeit">🎈 Freizeit</option>
+    </select>
+    <select name="priority" style="padding:8px; border-radius:8px; border:1px solid var(--border); font-size:12px;">
+      <option value="Niedrig">🟢 Niedrig</option>
+      <option value="Mittel">🟡 Mittel</option>
+      <option value="Hoch">🔴 Hoch</option>
+    </select>
+    <button type="submit" class="btn btn-primary" style="font-size:13px;">+ Hinzufügen</button>
+  </div>
+</form>
         <div class="inbox-list" id="inbox" ondragover="allowDrop(event)" ondrop="drop(event, null)">
           @each(todo in todos)
             @if(!todo.quadrant)
@@ -128,9 +133,9 @@
             <div class="drop-hint">+ hierher ziehen</div>
           </div>
 
-          {{-- Delegieren --}}
+          {{-- Delegieren oder reduzieren--}}
           <div class="quadrant q-delegate" ondragover="allowDrop(event)" ondrop="drop(event, 'delegate')">
-            <div class="q-label q-delegate-label">DELEGIEREN</div>
+            <div class="q-label q-delegate-label">DELEGIEREN oder REDUZIEREN</div>
             <div class="q-sublabel">Unwichtig + Dringend</div>
             @each(todo in todos)
               @if(todo.quadrant === 'delegate')
