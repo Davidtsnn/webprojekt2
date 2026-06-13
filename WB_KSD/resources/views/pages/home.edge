@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Habit Tracker</title>
-  
+  <title>LifeSync Dashboard</title>
   @vite(['resources/css/app.css'])
 </head>
+
 <body>
 
   {{--KimÄnderungen--}}
@@ -43,96 +43,213 @@
         <button class="btn-primary">⏱️ Zum Fokus Timer</button>
       </a>
     </div>
+  <div class="page-bg">
+    <div class="tablet-shell">
 
-    <h2>📅 Heutige Gewohnheiten</h2>
-    <ul>
-      @each (habit in habits)
-        <li>
-          <div class="task-info">
-            <strong>{{ habit.name }}</strong>
-            <small>{{ habit.category }}</small>
+      <aside class="sidebar">
+        <div>
+          <div class="logo" id="logoEgg">
+            <div class="logo-icon">✦</div>
+            <div>
+              <strong>LifeSync</strong>
+              <small>Digital Sanctuary</small>
+            </div>
           </div>
-          
-          @if(habit.isDoneToday)
-            <span class="fire-text">🔥 Geschafft!</span>
-          @else
-            <form action="/habits/log/{{ habit.id }}" method="post" style="margin: 0;">
-              {{ csrfField() }}
-              <button type="submit" class="btn-success">✅ Erledigt</button>
-            </form>
-          @end
-        </li>
-      @end
-    </ul>
 
-    <hr style="margin: 40px 0; border: 0; border-top: 2px dashed #edf2f7;">
+          <nav class="menu">
+            <a class="active" href="/">▦ Übersicht</a>
+            <a href="#tasks">▤ Aufgaben</a>
+            <a href="/calendar">□ Kalender</a>
+            <a href="#habits">↔ Gewohnheiten</a>
+          </nav>
+        </div>
 
-<h2>⚙️ To-Dos verwalten</h2>
-    
-      <form action="/todos/create" method="post" enctype="multipart/form-data" class="input-group" style="flex-direction: column; gap: 10px;">
-    {{ csrfField() }} 
-    <input type="text" name="title" placeholder="Was ist zu tun?" required>
-    
-    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-      <input type="date" name="due_date" style="padding: 10px; border-radius: 8px; border: 1px solid #ddd; flex: 1;">
+        <div class="sidebar-bottom">
+          <a href="#" onclick="toggleDarkMode()">🌙 Dark Mode</a>
+          <a href="#">⚙ Einstellungen</a>
+          <a href="#">⇱ Abmelden</a>
+        </div>
+      </aside>
 
-      <select name="category" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
-        <option value="Uni">🎓 Uni</option>
-        <option value="Haushalt">🏠 Haushalt</option>
-        <option value="Freizeit">🎈 Freizeit</option>
-      </select>
+      <main class="content">
+        <header class="topbar">
+          <div class="mood-strip">
+            <span>🌿 HEUTE IM FOKUS</span>
+            <div class="color-bar">
+              <div class="focus-study"></div>
+              <div class="focus-habits"></div>
+              <div class="focus-health"></div>
+            </div>
+            <small>📚 Lernen • 💧 Wasser • 🧘 Balance</small>
+          </div>
 
-      <select name="priority" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
-        <option value="Niedrig">🟢 Niedrig</option>
-        <option value="Mittel">🟡 Mittel</option>
-        <option value="Hoch">🔴 Hoch</option>
-      </select>
-    </div>
-    
-    <div style="display: flex; gap: 10px; align-items: center;">
-      <input type="file" name="image" accept="image/*" style="font-size: 12px; flex: 1;">
-      <button type="submit" class="btn-primary">Hinzufügen</button>
-    </div>
-  </form>
+          <div class="top-icons">
+            <span class="bell">♢</span>
+            <span class="user">♟</span>
+          </div>
+        </header>
 
-<ul>
-      @each (todo in todos)
-        <li style="{{ todo.is_completed ? 'opacity: 0.6;' : '' }}">
-          
-          <div class="task-info">
-            <strong class="{{ todo.is_completed ? 'completed-text' : '' }}">
-              {{ todo.title }}
-            </strong>
-            <small>{{ todo.priority }} | {{ todo.category }} {{ todo.due_date ? '| 📅 ' + todo.due_date : '' }}</small>
+        <section class="hero">
+          <p>DEIN TAGESPLANER</p>
+          <h1>Guten Morgen, Student!</h1>
+          <span>Plane deinen Tag ruhig, klar und fokussiert.</span>
 
-            @if(todo.file_path)
-              <div style="margin-top: 10px;">
-                <img src="{{ todo.file_path }}" style="max-width: 150px; border-radius: 8px; border: 1px solid #eee;">
+          <div class="quote-card">
+            💡 Kleine Schritte, große Wirkung — heute zählt der Fortschritt.
+          </div>
+
+          <div class="progress-container">
+            <div class="progress-card">
+              <div class="progress-circle habit-goal">
+                <strong>0%</strong>
+              </div>
+              <span>Gewohnheitsziel</span>
+            </div>
+
+            <div class="progress-card">
+              <div class="progress-circle learning">
+                <strong>0%</strong>
+              </div>
+              <span>Lernziel</span>
+            </div>
+          </div>
+        </section>
+
+        <div class="dashboard-grid">
+
+          <section id="tasks">
+            <div class="section-head">
+              <div>
+                <h2>Fokus des Tages</h2>
+                <p>Deine wichtigsten Aufgaben</p>
+              </div>
+              <span>{{ todos.length }} Aufgaben</span>
+            </div>
+
+            @each (todo in todos)
+              <div class="task-card priority-{{ todo.priority }}" onclick="taskFirework(event, this)">
+                <form action="/todos/complete/{{ todo.id }}" method="post">
+                  {{ csrfField() }}
+                  <button type="submit" class="check-btn">
+                    {{ todo.is_completed ? '✓' : '' }}
+                  </button>
+                </form>
+
+                <div class="task-info">
+                  <strong class="{{ todo.is_completed ? 'completed-text' : '' }}">
+                    {{ todo.title }}
+                  </strong>
+
+                  <small class="task-category">
+                    {{ todo.category }}
+                    {{ todo.due_date ? ' | Frist: ' + todo.due_date : '' }}
+                  </small>
+
+                  @if(todo.file_path)
+                    <img src="{{ todo.file_path }}" class="todo-img">
+                  @end
+                </div>
+
+                <span class="badge">{{ todo.priority }}</span>
+                <a href="/todos/edit/{{ todo.id }}" class="icon-btn">✎</a>
+
+                <form action="/todos/delete/{{ todo.id }}" method="post">
+                  {{ csrfField() }}
+                  <button type="submit" class="icon-btn delete">⌫</button>
+                </form>
               </div>
             @end
-          </div>
-          
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <form action="/todos/complete/{{ todo.id }}" method="post" style="margin: 0;">
-              {{ csrfField() }}
-              <button type="submit" class="{{ todo.is_completed ? 'btn-warning' : 'btn-success' }}">
-                {{ todo.is_completed ? '↩️' : '✅' }}
-              </button>
-            </form>
+          </section>
 
-            <a href="/todos/edit/{{ todo.id }}" style="text-decoration: none;">
-              <button type="button" class="btn-success" style="background: #e2e8f0; border-radius: 8px; padding: 10px;" title="Bearbeiten">✏️</button>
-            </a>
+          <aside class="right-panel" id="habits">
+  <h2>Heutige Gewohnheiten</h2>
+  <p class="panel-subtitle">Kleine Schritte, große Wirkung</p>
 
-            <form action="/todos/delete/{{ todo.id }}" method="post" style="margin: 0;">
-              {{ csrfField() }}
-              <button type="submit" class="btn-danger" title="Löschen">🗑️</button>
-            </form>
-          </div>
+  <div class="habit-controls">
+  <input type="text" id="newHabit" placeholder="Neue Gewohnheit...">
+  <button type="button" onclick="addHabit()">+</button>
+</div>
 
-        </li>
-      @end
-    </ul>
+  <div id="customHabits"></div>
+
+  <div class="motivation-box">
+    🎯 Ziel heute: Deine Gewohnheiten abschließen
+  </div>
+
+  <section class="stats-card">
+    <h2>Tagesstatistik</h2>
+    <p>✅ Aufgaben: {{ todos.length }} insgesamt</p>
+    <p id="habitStats">🌿 Gewohnheiten: 0 von 0 erledigt</p>
+    <p>📚 Lernen: automatisch durch erledigte Aufgaben</p>
+  </section>
+
+  <section class="appointments">
+    <h2>Termine</h2>
+
+    <div class="appointment">
+      <div class="date-box">
+        <small>HEUTE</small>
+        <strong>24</strong>
+      </div>
+      <div>
+        <strong>Seminar: KI in der Praxis</strong>
+        <small>◷ 14:00 - 15:30</small>
+      </div>
+    </div>
+
+    <div class="appointment">
+      <div class="date-box muted">
+        <small>MORGEN</small>
+        <strong>25</strong>
+      </div>
+      <div>
+        <strong>Lerngruppe Statistik</strong>
+        <small>◷ 10:15 - 12:00</small>
+      </div>
+    </div>
+  </section>
+</aside>
+        </div>
+
+        <a href="#new-task" class="floating-btn">+</a>
+
+        <section id="new-task" class="new-task-panel">
+          <h2>Neue Aufgabe</h2>
+          <p>Erstelle schnell eine neue Aufgabe.</p>
+
+          <form action="/todos/create" method="post" enctype="multipart/form-data" class="todo-form">
+            {{ csrfField() }}
+
+            <input type="text" name="title" placeholder="Was ist zu tun?" required>
+            <input type="date" name="due_date">
+
+            <select name="category">
+              <option value="Uni">Uni</option>
+              <option value="Haushalt">Haushalt</option>
+              <option value="Freizeit">Freizeit</option>
+            </select>
+
+            <select name="priority">
+              <option value="Niedrig">Niedrig</option>
+              <option value="Mittel">Mittel</option>
+              <option value="Hoch">Hoch</option>
+            </select>
+
+            <input type="file" name="image" accept="image/*">
+            <button type="submit">Hinzufügen</button>
+          </form>
+        </section>
+      </main>
+
+    </div>
+  </div>
+
+  <div id="profEgg" class="prof-egg">
+    <div>
+      <h2>🏆 Professor Mode aktiviert</h2>
+      <p>LifeSync erkennt: Struktur, Motivation und Gamification erfolgreich kombiniert.</p>
+      <button onclick="closeProfEgg()">Sehr gut!</button>
+    </div>
   </div>
 
   </main>
@@ -141,3 +258,202 @@
 </body>
 </html>
 
+<script>
+function taskFirework(event, card) {
+  if (
+    event.target.closest('form') ||
+    event.target.closest('button') ||
+    event.target.closest('a')
+  ) {
+    return;
+  }
+
+  const rect = card.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  for (let i = 0; i < 30; i++) {
+    const dot = document.createElement('span');
+    dot.className = 'pink-dot';
+
+    dot.style.left = centerX + 'px';
+    dot.style.top = centerY + 'px';
+
+    const x = (Math.random() - 0.5) * 260;
+    const y = (Math.random() - 0.5) * 260;
+
+    dot.style.setProperty('--x', x + 'px');
+    dot.style.setProperty('--y', y + 'px');
+
+    document.body.appendChild(dot);
+
+    setTimeout(function () {
+      dot.remove();
+    }, 900);
+  }
+}
+
+function toggleHabit(event, button) {
+  event.stopPropagation();
+
+  const card = button.closest('.habit-card');
+  const habitName = card.querySelector('strong').innerText;
+
+  card.classList.toggle('habit-done');
+
+  if (card.classList.contains('habit-done')) {
+    card.style.backgroundColor = card.dataset.color;
+    button.innerText = '✓';
+    localStorage.setItem('habit-' + habitName, 'done');
+  } else {
+    card.style.backgroundColor = '';
+    button.innerText = '+';
+    localStorage.removeItem('habit-' + habitName);
+  }
+
+  updateGoals();
+}
+
+function addHabit() {
+  const input = document.getElementById('newHabit');
+  const name = input.value.trim();
+
+  if (!name) return;
+
+  const customHabits = JSON.parse(localStorage.getItem('customHabits')) || [];
+
+  if (!customHabits.includes(name)) {
+    customHabits.push(name);
+    localStorage.setItem('customHabits', JSON.stringify(customHabits));
+    createCustomHabit(name);
+  }
+
+  input.value = '';
+  updateGoals();
+}
+
+function createCustomHabit(name) {
+  const container = document.getElementById('customHabits');
+
+  const habit = document.createElement('div');
+  habit.className = 'habit-card';
+  habit.setAttribute('data-color', '#f5f3ff');
+
+  habit.innerHTML = `
+
+    <div class="habit-info">
+      <strong>${name}</strong>
+      <small>NEUE GEWOHNHEIT</small>
+    </div>
+    <button class="round-btn" type="button" onclick="toggleHabit(event, this)">+</button>
+    <button class="delete-habit" type="button" onclick="removeHabit(event, this)">×</button>
+  `;
+
+  container.appendChild(habit);
+}
+
+function removeHabit(event, button) {
+  event.stopPropagation();
+
+  const card = button.closest('.habit-card');
+  const name = card.querySelector('strong').innerText;
+
+  let customHabits = JSON.parse(localStorage.getItem('customHabits')) || [];
+
+  customHabits = customHabits.filter(function(habit) {
+    return habit !== name;
+  });
+
+  localStorage.setItem('customHabits', JSON.stringify(customHabits));
+  localStorage.removeItem('habit-' + name);
+
+  card.remove();
+  updateGoals();
+}
+
+function loadCustomHabits() {
+  const customHabits = JSON.parse(localStorage.getItem('customHabits')) || [];
+
+  customHabits.forEach(function(name) {
+    createCustomHabit(name);
+  });
+}
+
+function loadHabits() {
+  document.querySelectorAll('.habit-card').forEach(function(card) {
+    const habitName = card.querySelector('strong').innerText;
+    const button = card.querySelector('.round-btn');
+
+    if (localStorage.getItem('habit-' + habitName) === 'done') {
+      card.classList.add('habit-done');
+      card.style.backgroundColor = card.dataset.color;
+      button.innerText = '✓';
+    }
+  });
+}
+
+function updateGoals() {
+  const habits = document.querySelectorAll('.habit-card');
+  const doneHabits = document.querySelectorAll('.habit-card.habit-done');
+
+  let habitPercent = 0;
+
+  if (habits.length > 0) {
+    habitPercent = Math.round((doneHabits.length / habits.length) * 100);
+  }
+
+  const habitCircle = document.querySelector('.progress-circle.habit-goal');
+  const habitNumber = habitCircle.querySelector('strong');
+
+  habitNumber.innerText = habitPercent + '%';
+
+  habitCircle.style.background =
+    `conic-gradient(#a5b4fc ${habitPercent * 3.6}deg, #eef2ff 0deg)`;
+
+  document.getElementById('habitStats').innerText =
+    '🌿 Gewohnheiten: ' + doneHabits.length + ' von ' + habits.length + ' erledigt';
+
+  const tasks = document.querySelectorAll('.task-card');
+  const doneTasks = document.querySelectorAll('.completed-text');
+
+  let learningPercent = 0;
+
+  if (tasks.length > 0) {
+    learningPercent = Math.round((doneTasks.length / tasks.length) * 100);
+  }
+
+  const learningCircle = document.querySelector('.progress-circle.learning');
+  const learningNumber = learningCircle.querySelector('strong');
+
+  learningNumber.innerText = learningPercent + '%';
+
+  learningCircle.style.background =
+    `conic-gradient(#86efac ${learningPercent * 3.6}deg, #ecfdf5 0deg)`;
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+}
+
+let logoClicks = 0;
+
+document.getElementById('logoEgg').addEventListener('click', function () {
+  logoClicks++;
+
+  if (logoClicks === 5) {
+    document.getElementById('profEgg').classList.add('show-egg');
+    logoClicks = 0;
+  }
+});
+
+function closeProfEgg() {
+  document.getElementById('profEgg').classList.remove('show-egg');
+}
+
+loadCustomHabits();
+loadHabits();
+updateGoals();
+</script>
+
+</body>
+</html>
