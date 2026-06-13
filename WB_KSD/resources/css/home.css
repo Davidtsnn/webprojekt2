@@ -1,0 +1,12 @@
+/* ==========================================================
+   home.css  —  Styles für die Startseite (home.edge)
+   Die Home-Seite nutzt aktuell Elemente aus BEIDEN Designs,
+   daher werden hier (vorerst) beide eingebunden.
+   Eigene Anpassungen für die Home-Seite einfach UNTEN ergänzen.
+   ========================================================== */
+
+@import './base.css';
+@import './theme-dashboard.css';
+@import './theme-board.css';
+
+/* ---- ab hier eigene Home-spezifische Styles ---- */

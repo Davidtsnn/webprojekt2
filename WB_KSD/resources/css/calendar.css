@@ -1,0 +1,10 @@
+/* ==========================================================
+   calendar.css  —  Styles für die Kalender-Seite (calendar.edge)
+   Nutzt Sarahs Design (theme-dashboard).
+   Eigene Anpassungen für den Kalender einfach UNTEN ergänzen.
+   ========================================================== */
+
+@import './base.css';
+@import './theme-dashboard.css';
+
+/* ---- ab hier eigene Kalender-spezifische Styles ---- */

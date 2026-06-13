@@ -1,0 +1,10 @@
+/* ==========================================================
+   habits.css  —  Styles für die Habits-Seite (habits.edge)
+   Nutzt Kims Design (theme-board).
+   Eigene Anpassungen für die Habits-Seite einfach UNTEN ergänzen.
+   ========================================================== */
+
+@import './base.css';
+@import './theme-board.css';
+
+/* ---- ab hier eigene Habits-spezifische Styles ---- */
