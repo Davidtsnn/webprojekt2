@@ -4,23 +4,19 @@
    ========================================================== */
 
 
-:root { /*Farbkonstante, sodass ich später Farbe nur hier ändern muss*/
-  --bg:        #f0f2f7;
-  --surface:   #ffffff;
-  --border:    #e8ecf2;
-  --text:      #1a202c;
-  --muted:     #7a8599;
-  --accent:    #4f6ef7;
-  --accent-bg: #eef1fe;
-  --green:     #22c55e;
-  --green-bg:  #dcfce7;
-  --orange:    #f97316;
-  --orange-bg: #fff7ed;
-  --red:       #ef4444;
-  --red-bg:    #fee2e2;
-  --radius:    14px;
-  --radius-sm: 8px;
-  --shadow:    0 2px 12px rgba(0,0,0,0.06);
+:root {
+  /* Auf das gemeinsame Design-System (base.css) gemappt,
+     damit Kims Seiten exakt dieselbe Palette nutzen.
+     --bg / --surface / --border / --text / --muted / --radius /
+     --radius-sm / --shadow kommen jetzt aus base.css. */
+  --accent:    var(--primary);
+  --accent-bg: var(--primary-soft);
+  --green:     var(--success);
+  --green-bg:  var(--success-soft);
+  --orange:    #b45309;
+  --orange-bg: var(--warning-soft);
+  --red:       var(--danger);
+  --red-bg:    var(--danger-soft);
 }
 
 /* Grundlayout */
@@ -505,14 +501,16 @@ body {
 }
 
 .cat-badge {
+  display: inline-block;
+  align-self: flex-start;   /* nicht über die ganze Kartenbreite ziehen */
   font-size: 9px;
   font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 20px;
+  padding: 2px 8px;
+  border-radius: 999px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
-.cat-uni      { background: #eef1fe; color: #4f6ef7; }
-.cat-haushalt { background: #dcfce7; color: #15803d; }
-.cat-freizeit { background: #fff7ed; color: #f97316; }
+.cat-uni      { background: var(--primary-soft); color: var(--primary); }
+.cat-haushalt { background: var(--success-soft); color: var(--success); }
+.cat-freizeit { background: var(--warning-soft); color: var(--warning); }

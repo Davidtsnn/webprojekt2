@@ -1,0 +1,26 @@
+{{--
+  Gemeinsame Sidebar für alle Seiten.
+  Verwendung:  @!sidebar({ active: 'home' })
+  active-Werte: home | todos | calendar | focus | habits
+--}}
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-icon">◎</div>
+    <div>
+      <span class="sidebar-brand-name">LifeSync</span>
+      <span class="sidebar-brand-sub">Digital Sanctuary</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="/"         class="{{ active === 'home' ? 'active' : '' }}"><span>🏠</span> Übersicht</a>
+    <a href="/todos"    class="{{ active === 'todos' ? 'active' : '' }}"><span>📋</span> Aufgaben</a>
+    <a href="/calendar" class="{{ active === 'calendar' ? 'active' : '' }}"><span>📅</span> Kalender</a>
+    <a href="/focus"    class="{{ active === 'focus' ? 'active' : '' }}"><span>⏱️</span> Fokus-Timer</a>
+    <a href="/habits"   class="{{ active === 'habits' ? 'active' : '' }}"><span>🔁</span> Gewohnheiten</a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="/logout">⇥ Abmelden</a>
+  </div>
+</aside>

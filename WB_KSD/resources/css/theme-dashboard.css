@@ -1524,9 +1524,53 @@ body {
 
 .habit-card:hover {
   background: #f1f5f9;
-  border-color: #bbf7d0;
+  border-color: var(--border);
 }
 
 .habit-card.habit-done {
-  border-color: #86efac;
+  border-color: var(--primary);
 }
+
+/* ==========================================================
+   VEREINHEITLICHUNG auf das Design-System (base.css)
+   Setzt die grün/lila Zweitfärbungen auf die gemeinsame
+   Indigo-Linie zurück. Steht bewusst ganz unten, damit es
+   die älteren Regeln überschreibt.
+   ========================================================== */
+body { background: var(--bg); }
+.page-bg { background: var(--bg); background-image: none; }
+.tablet-shell { border-color: var(--border); background: var(--surface); }
+.sidebar { background: var(--surface); }
+
+.logo strong,
+.section-head span,
+.calendar-page a { color: var(--primary); }
+
+.logo-icon,
+.floating-btn,
+.todo-form button,
+.habit-controls button { background: var(--primary); color: #fff; }
+
+.menu a.active,
+.menu a:hover { background: var(--primary-soft); color: var(--primary); }
+
+.quote-card,
+.motivation-box {
+  background: var(--primary-soft);
+  color: var(--primary-hover);
+  border: 1px solid var(--border);
+}
+
+.focus-study  { background: var(--primary); }
+.focus-habits { background: #818cf8; }
+.focus-health { background: #a5b4fc; }
+.color-bar { box-shadow: var(--shadow-sm); }
+
+.habit-controls input { border: 1px solid var(--border); }
+
+/* Kalender in der gleichen Linie */
+.calendar-page { background: var(--bg); }
+.calendar-day { border-color: var(--border); box-shadow: var(--shadow-sm); }
+.calendar-day:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+.calendar-day.today { background: var(--primary-soft); border-color: var(--primary); }
+.calendar-event { background: var(--primary); color: #fff; }

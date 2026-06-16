@@ -9,7 +9,7 @@ export default defineConfig({
        * result in a separate bundle.
        */
       entrypoints: [
-        'resources/css/app.css', // Login/Registrierung (über das Layout)
+        'resources/css/base.css', // Login/Registrierung (über das Layout)
         'resources/css/home.css',
         'resources/css/calendar.css',
         'resources/css/todos.css',

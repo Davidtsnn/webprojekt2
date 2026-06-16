@@ -1,23 +1,219 @@
 /* ==========================================================
-   base.css  —  Gemeinsame Grundlage für ALLE Seiten
-   Schrift + Reset. Wird von jeder Seiten-CSS per @import geladen.
-   (Bitte hier nur wirklich Allgemeines ändern.)
+   base.css  —  GEMEINSAMES DESIGN-SYSTEM (für ALLE Seiten)
+   Eine Linie: Farben, Schrift, Abstände, Schatten + Bausteine.
+   Basiert auf Sarahs Stil, aufgeräumt & professionell.
+
+   Regeln fürs Team:
+   - Farben/Abstände NUR über die Variablen unten benutzen
+     (z. B. color: var(--text); nicht color: #1f2937;)
+   - Wiederkehrende Elemente (Button, Karte, Badge, Input)
+     hier benutzen, nicht pro Seite neu erfinden.
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-* {
-  box-sizing: border-box;
+/* ---------- Design-Tokens ---------- */
+:root {
+  /* Flächen & Text */
+  --bg:            #f5f7fb;
+  --surface:       #ffffff;
+  --surface-soft:  #f8fafc;
+  --border:        #e6e9f0;
+  --text:          #1f2937;
+  --muted:         #64748b;
+
+  /* Akzent (Indigo) */
+  --primary:       #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-soft:  #eef2ff;
+
+  /* Semantik */
+  --success:       #16a34a;  --success-soft: #dcfce7;
+  --warning:       #b45309;  --warning-soft: #fef3c7;
+  --danger:        #dc2626;  --danger-soft:  #fee2e2;
+
+  /* Schrift */
+  --font: 'Inter', Arial, sans-serif;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius:    12px;
+  --radius-lg: 16px;
+
+  /* Schatten (dezent) */
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+  --shadow:    0 6px 18px rgba(15, 23, 42, 0.07);
+
+  /* Abstände */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px;
+  --space-4: 16px; --space-6: 24px; --space-8: 32px;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+/* ---------- Reset & Grundlagen ---------- */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', Arial, sans-serif;
-  color: #1f2937;
-  background: #f7f9fc;
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
+
+h1, h2, h3 { margin: 0 0 var(--space-3); color: var(--text); font-weight: 700; line-height: 1.2; }
+h1 { font-size: 28px; letter-spacing: -0.5px; }
+h2 { font-size: 20px; }
+h3 { font-size: 16px; }
+p  { margin: 0 0 var(--space-3); }
+a  { color: var(--primary); text-decoration: none; }
+a:hover { color: var(--primary-hover); }
+
+.muted { color: var(--muted); }
+
+/* ---------- Buttons ---------- */
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-warning,
+.btn-success,
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font: 600 14px var(--font);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  text-decoration: none;
+}
+.btn-primary   { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-hover); color: #fff; }
+.btn-success   { background: var(--success); color: #fff; }
+.btn-warning   { background: var(--warning); color: #fff; }
+.btn-primary:hover { background: var(--primary-hover); color: #fff; }
+.btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border); }
+.btn-secondary:hover { background: var(--surface-soft); }
+.btn-danger    { background: var(--danger-soft); color: var(--danger); }
+.btn-danger:hover { background: #fdd; }
+
+/* Kleiner Icon-Button (z. B. ✅ / 🗑️ in Karten) */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+.btn-icon:hover { background: var(--surface-soft); }
+.btn-icon-danger { color: var(--danger); }
+.btn-icon-danger:hover { background: var(--danger-soft); border-color: var(--danger-soft); }
+
+/* ---------- Karten ---------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- Badges ---------- */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.badge-success { background: var(--success-soft); color: var(--success); }
+.badge-warning { background: var(--warning-soft); color: var(--warning); }
+.badge-danger  { background: var(--danger-soft);  color: var(--danger); }
+
+/* ---------- Formulare ---------- */
+input, select, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font: 400 14px var(--font);
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+  transition: border-color 0.15s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--text); }
+
+/* ---------- Sidebar (gemeinsam) ---------- */
+.app-shell { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: var(--space-6) var(--space-4);
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-brand { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-8); }
+.sidebar-brand-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.sidebar-brand-name { display: block; font-size: 15px; font-weight: 700; color: var(--text); }
+.sidebar-brand-sub  { display: block; font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+.sidebar-nav { display: flex; flex-direction: column; gap: var(--space-1); list-style: none; padding: 0; margin: 0; }
+.sidebar-nav a {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-size: 14px; font-weight: 500;
+}
+.sidebar-nav a:hover  { background: var(--surface-soft); color: var(--text); }
+.sidebar-nav a.active { background: var(--primary-soft); color: var(--primary); }
+.sidebar-footer { margin-top: auto; padding-top: var(--space-4); border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 2px; }
+.sidebar-footer a { padding: 9px 12px; border-radius: var(--radius-sm); color: var(--muted); font-size: 13px; font-weight: 500; }
+.sidebar-footer a:hover { background: var(--surface-soft); color: var(--text); }
+/* alte Layout-Klasse als Alias, damit bestehende Seiten weiter funktionieren */
+.app-layout { display: flex; min-height: 100vh; }
+
+/* ---------- Login-/Formular-Karte ---------- */
+.form-container {
+  max-width: 420px;
+  margin: 60px auto;
+  padding: var(--space-8);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+.form-container h1 { margin-bottom: var(--space-2); }
+.form-container > div { margin-bottom: var(--space-4); }
+
+/* ---------- Seiten-Layout ---------- */
+.container { max-width: 1100px; margin: 0 auto; padding: var(--space-8); }
+.main-content { flex: 1; padding: var(--space-8); }
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-6); }
