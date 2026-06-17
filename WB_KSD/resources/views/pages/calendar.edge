@@ -1,88 +1,523 @@
 <!DOCTYPE html>
-<html lang="de">
+<html>
 <head>
-  <title>Kalender – LifeSync</title>
-  @vite(['resources/css/calendar.css'])
+  <title>Kalender</title>
+  @vite(['resources/css/app.css'])
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: #f8fafc;
+      color: #111827;
+    }
+
+    .calendar-page {
+      min-height: 100vh;
+      padding: 40px 60px;
+      background: linear-gradient(135deg, #f8fafc, #eef2ff);
+    }
+
+    .back-link {
+      text-decoration: none;
+      color: #64748b;
+      font-weight: 800;
+    }
+
+    .calendar-shell {
+      margin-top: 24px;
+      background: white;
+      border-radius: 28px;
+      padding: 32px;
+      box-shadow: 0 24px 60px rgba(15,23,42,.08);
+    }
+
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .calendar-header h1 {
+      margin: 0;
+      font-size: 44px;
+    }
+
+    .calendar-header p {
+      margin: 8px 0 0;
+      color: #64748b;
+      font-weight: 700;
+    }
+
+    .month-switch {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .month-switch button {
+      width: 42px;
+      height: 42px;
+      border: none;
+      border-radius: 14px;
+      background: #eef2ff;
+      color: #4f46e5;
+      font-size: 24px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    #month-year-display {
+      min-width: 190px;
+      text-align: center;
+      background: #eef2ff;
+      color: #4338ca;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .calendar-layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 28px;
+    }
+
+    .calendar-grid,
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 12px;
+    }
+
+    .calendar-grid {
+      margin-bottom: 12px;
+    }
+
+    .day-name {
+      font-weight: 900;
+      text-align: center;
+      color: #818cf8;
+      font-size: 14px;
+    }
+
+    .day-cell {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 12px;
+      min-height: 115px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 24px rgba(15,23,42,.04);
+      transition: .2s ease;
+    }
+
+    .day-cell:hover {
+      transform: translateY(-3px);
+      border-color: #818cf8;
+      box-shadow: 0 18px 36px rgba(129,140,248,.14);
+    }
+
+    .day-cell.empty {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    .day-cell.today {
+      background: #eef2ff;
+      border: 2px solid #818cf8;
+    }
+
+    .day-number {
+      text-align: right;
+      font-size: 14px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .todo-pill {
+      font-size: 10px;
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 7px 8px;
+      border-radius: 12px;
+      margin-top: 4px;
+      font-weight: 800;
+    }
+
+    .todo-pill small {
+      display: block;
+      margin-top: 3px;
+      font-size: 9px;
+      color: #4f46e5;
+      font-weight: 700;
+      white-space: normal;
+    }
+
+    .custom-event {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .delete-event {
+      border: none;
+      background: transparent;
+      color: #ef4444;
+      font-weight: 900;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 0;
+    }
+
+    .important-event {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .important-event small {
+      color: #991b1b;
+    }
+
+    .calendar-side {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 24px;
+      padding: 22px;
+      height: fit-content;
+    }
+
+    .calendar-side h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
+    .info-box {
+      background: #eef2ff;
+      color: #3730a3;
+      border-radius: 16px;
+      padding: 14px;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .calendar-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .calendar-form input,
+    .calendar-form textarea {
+      border: 1px solid #e0e7ff;
+      border-radius: 12px;
+      padding: 0 12px;
+      font-family: inherit;
+      font-weight: 700;
+    }
+
+    .calendar-form input {
+      height: 44px;
+    }
+
+    .calendar-form textarea {
+      min-height: 80px;
+      padding-top: 12px;
+      resize: none;
+    }
+
+    .calendar-form label {
+      font-weight: 800;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .calendar-form label input {
+      height: auto;
+      margin-right: 6px;
+    }
+
+    .calendar-form button {
+      height: 44px;
+      border: none;
+      border-radius: 12px;
+      background: #818cf8;
+      color: white;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .stat-box {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 12px;
+      box-shadow: 0 8px 20px rgba(15,23,42,.04);
+    }
+
+    .stat-box strong {
+      display: block;
+      font-size: 26px;
+      color: #4f46e5;
+    }
+
+    .stat-box span {
+      font-size: 12px;
+      font-weight: 800;
+      color: #64748b;
+    }
+
+    .calendar-tip {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 13px;
+      font-weight: 800;
+    }
+  </style>
 </head>
+
 <body>
-<div class="app-layout">
+  <div class="calendar-page">
+    <a href="/" class="back-link">&larr; Zurück zum Dashboard</a>
 
-  @!sidebar({ active: 'calendar' })
+    <div class="calendar-shell">
+      <div class="calendar-header">
+        <div>
+          <h1>📅 Mein Kalender</h1>
+          <p>Plane Aufgaben, Termine und Deadlines im Monatsüberblick.</p>
+        </div>
 
-  <main class="main-content">
+        <div class="month-switch">
+          <button type="button" onclick="changeMonth(-1)">‹</button>
+          <div id="month-year-display"></div>
+          <button type="button" onclick="changeMonth(1)">›</button>
+        </div>
+      </div>
 
-    <div class="page-header">
-      <h1>📅 Kalender</h1>
-      <a href="/focus"><button class="btn-primary">⏱️ Zum Fokus-Timer</button></a>
+      <div class="calendar-layout">
+        <section>
+          <div class="calendar-grid">
+            <div class="day-name">Mo</div>
+            <div class="day-name">Di</div>
+            <div class="day-name">Mi</div>
+            <div class="day-name">Do</div>
+            <div class="day-name">Fr</div>
+            <div class="day-name">Sa</div>
+            <div class="day-name">So</div>
+          </div>
+
+          <div class="calendar-days" id="calendar-body"></div>
+        </section>
+
+        <aside class="calendar-side">
+          <h2>Neuer Termin</h2>
+
+          <div class="info-box">
+<p>
+Hier siehst du deine Termine im Überblick.
+</p>
+
+<p>
+Füge mit „Hinzufügen“ ganz einfach einen neuen Termin hinzu.
+</p>
+
+<p>
+Für besonders wichtige Termine markiere diese mit „Wichtiger Termin“.🚨
+</p>          </div>
+
+          <form class="calendar-form" onsubmit="addCalendarEvent(event)">
+            <input type="text" id="eventTitle" placeholder="Titel..." required>
+            <input type="date" id="eventDate" required>
+
+            <textarea id="eventNote" placeholder="Notiz dazu..."></textarea>
+
+            <label>
+              <input type="checkbox" id="eventImportant">
+              🔴 Wichtiger Termin
+            </label>
+
+            <button type="submit">Hinzufügen</button>
+          </form>
+
+          <h2>Monatsübersicht</h2>
+
+          <div class="stat-box">
+            <strong id="todo-count">0</strong>
+            <span>Einträge in diesem Monat</span>
+          </div>
+
+          <div class="stat-box">
+            <strong id="today-label">Heute</strong>
+            <span>markierter Tag</span>
+          </div>
+
+          <div class="calendar-tip">
+            ✨ Tipp: Trage zuerst Deadlines und wichtige Uni-Termine ein.
+          </div>
+        </aside>
+      </div>
     </div>
-
-    <h2 id="month-year-display" class="cal-month"></h2>
-
-    <div class="calendar-grid">
-      <div class="day-name">Mo</div>
-      <div class="day-name">Di</div>
-      <div class="day-name">Mi</div>
-      <div class="day-name">Do</div>
-      <div class="day-name">Fr</div>
-      <div class="day-name">Sa</div>
-      <div class="day-name">So</div>
-    </div>
-
-    <div class="calendar-grid" id="calendar-body"></div>
-
-  </main>
-</div>
+  </div>
 
 <script>
-  // To-Dos vom Server (Escape von '<' verhindert ein Ausbrechen aus dem <script>)
-  const serverTodos = {{{ JSON.stringify(todos).replaceAll('<', '\\u003c') }}};
+  const serverTodos = {{{ JSON.stringify(todos) }}};
 
-  // HTML escapen, damit Aufgaben-Titel kein HTML/JS einschleusen können (XSS-Schutz)
-  function esc(s) {
-    return String(s).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
-    })
+  const date = new Date();
+  let currentYear = date.getFullYear();
+  let currentMonth = date.getMonth();
+  const todayDate = date.getDate();
+
+  const calendarBody = document.getElementById('calendar-body');
+  const monthYearDisplay = document.getElementById('month-year-display');
+  const todoCount = document.getElementById('todo-count');
+
+  const monthNames = [
+    'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+    'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
+  ];
+
+  function loadEvents() {
+    return JSON.parse(localStorage.getItem('calendarEvents')) || [];
   }
 
-  const date = new Date()
-  const currentYear = date.getFullYear()
-  const currentMonth = date.getMonth()
-  const todayDate = date.getDate()
-
-  const monthNames = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember']
-  document.getElementById('month-year-display').innerText = monthNames[currentMonth] + ' ' + currentYear
-
-  const calendarBody = document.getElementById('calendar-body')
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
-  const firstDay = new Date(currentYear, currentMonth, 1).getDay()
-  const emptyDays = firstDay === 0 ? 6 : firstDay - 1
-
-  let html = ''
-  for (let i = 0; i < emptyDays; i++) {
-    html += '<div class="day-cell empty"></div>'
+  function saveEvents(events) {
+    localStorage.setItem('calendarEvents', JSON.stringify(events));
   }
 
-  for (let i = 1; i <= daysInMonth; i++) {
-    const dayString = i < 10 ? '0' + i : i
-    const monthString = (currentMonth + 1) < 10 ? '0' + (currentMonth + 1) : (currentMonth + 1)
-    const currentDate = `${currentYear}-${monthString}-${dayString}`
+  function addCalendarEvent(event) {
+    event.preventDefault();
 
-    const todosForThisDay = serverTodos.filter((t) => String(t.due_date).slice(0, 10) === currentDate)
-    const isToday = (i === todayDate) ? 'today' : ''
+    const title = document.getElementById('eventTitle').value.trim();
+    const eventDate = document.getElementById('eventDate').value;
+    const note = document.getElementById('eventNote').value.trim();
+    const important = document.getElementById('eventImportant').checked;
 
-    let todoHtml = ''
-    todosForThisDay.forEach((t) => {
-      todoHtml += `<div class="cal-event" title="${esc(t.title)}">${esc(t.title)}</div>`
-    })
+    if (!title || !eventDate) return;
 
-    html += `
-      <div class="day-cell ${isToday}">
-        <div class="day-number">${i}</div>
-        <div style="flex:1; overflow-y:auto;">${todoHtml}</div>
-      </div>
-    `
+    const events = loadEvents();
+
+    events.push({
+      id: Date.now().toString(),
+      title: title,
+      date: eventDate,
+      note: note,
+      important: important
+    });
+
+    saveEvents(events);
+
+    const selectedDate = new Date(eventDate);
+    currentYear = selectedDate.getFullYear();
+    currentMonth = selectedDate.getMonth();
+
+    document.getElementById('eventTitle').value = '';
+    document.getElementById('eventDate').value = '';
+    document.getElementById('eventNote').value = '';
+    document.getElementById('eventImportant').checked = false;
+
+    renderCalendar();
   }
-  calendarBody.innerHTML = html
+
+  function deleteCalendarEvent(id) {
+    let events = loadEvents();
+
+    events = events.filter(function(event) {
+      return event.id !== id;
+    });
+
+    saveEvents(events);
+    renderCalendar();
+  }
+
+  function changeMonth(direction) {
+    currentMonth += direction;
+
+    if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    }
+
+    if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    }
+
+    renderCalendar();
+  }
+
+  function renderCalendar() {
+    calendarBody.innerHTML = '';
+    monthYearDisplay.innerText = monthNames[currentMonth] + ' ' + currentYear;
+
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const emptyDays = firstDay === 0 ? 6 : firstDay - 1;
+
+    const savedEvents = loadEvents();
+    let monthCounter = 0;
+
+    for (let i = 0; i < emptyDays; i++) {
+      calendarBody.innerHTML += `<div class="day-cell empty"></div>`;
+    }
+
+    for (let i = 1; i <= daysInMonth; i++) {
+      const dayString = i < 10 ? '0' + i : i;
+      const monthString = currentMonth + 1 < 10 ? '0' + (currentMonth + 1) : currentMonth + 1;
+      const currentDate = `${currentYear}-${monthString}-${dayString}`;
+
+      const todosForThisDay = serverTodos.filter(t => t.due_date === currentDate);
+      const eventsForThisDay = savedEvents.filter(e => e.date === currentDate);
+      monthCounter += todosForThisDay.length + eventsForThisDay.length;
+
+      const isToday =
+        i === todayDate &&
+        currentMonth === date.getMonth() &&
+        currentYear === date.getFullYear()
+          ? 'today'
+          : '';
+
+      let todoHtml = '';
+
+      todosForThisDay.forEach(t => {
+        todoHtml += `<div class="todo-pill">${t.title}</div>`;
+      });
+
+      eventsForThisDay.forEach(function(event) {
+        todoHtml += `
+          <div class="todo-pill custom-event ${event.important ? 'important-event' : ''}">
+            <div>
+              <strong>${event.important ? '🔴 ' : ''}${event.title}</strong>
+              ${event.note ? `<small>${event.note}</small>` : ''}
+            </div>
+
+            <button class="delete-event" type="button" onclick="deleteCalendarEvent('${event.id}')">×</button>
+          </div>
+        `;
+      });
+
+      calendarBody.innerHTML += `
+        <div class="day-cell ${isToday}">
+          <div class="day-number">${i}</div>
+          <div>${todoHtml}</div>
+        </div>
+      `;
+    }
+
+    todoCount.innerText = monthCounter;
+  }
+
+  renderCalendar();
 </script>
 
 </body>

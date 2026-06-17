@@ -65,3 +65,35 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+.day-cell.has-events {
+  border: 2px solid #c7d2fe;
+  background: linear-gradient(180deg, #ffffff, #f8faff);
+}
+
+.day-cell.has-important {
+  border: 2px solid #fca5a5;
+  background: linear-gradient(180deg, #ffffff, #fff1f2);
+}
+
+.day-cell.has-events {
+  border: 2px solid #c7d2fe;
+  background: linear-gradient(180deg, #ffffff, #f8faff);
+}
+
+.day-cell.has-important {
+  border: 2px solid #fca5a5;
+  background: linear-gradient(180deg, #ffffff, #fff1f2);
+}
+
+
+.todo-pill {
+  box-shadow: 0 6px 14px rgba(79, 70, 229, .12);
+}
+
+.important-event {
+  box-shadow: 0 6px 14px rgba(239, 68, 68, .16);
+}
+
+.calendar-tip {
+  border-left: 4px solid #818cf8;
+}

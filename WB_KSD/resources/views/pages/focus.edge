@@ -4,78 +4,177 @@
   <title>Fokus Timer</title>
   @vite(['resources/css/focus.css'])
 </head>
+
 <body>
-  
-  <div class="container" style="text-align: center;">
-    <div style="text-align: left; margin-bottom: 20px;">
-      <a href="/" style="text-decoration: none; color: #a0aec0; font-weight: bold;">
+  <div class="container" style="text-align:center;">
+    <div style="text-align:left; margin-bottom:20px;">
+      <a href="/" style="text-decoration:none; color:#a0aec0; font-weight:bold;">
         &larr; Zurück zum Dashboard
       </a>
     </div>
 
+    <p style="color:#4a5568; margin-bottom:20px;">
+      Arbeite hochkonzentriert für 25 Minuten, danach 5 Minuten Pause.
+    </p>
 
-    <p style="color: #4a5568; margin-bottom: 40px;">Arbeite hochkonzentriert für 25 Minuten, danach 5 Minuten Pause.</p>
+    <div id="mode-display" style="font-size:18px; color:#4f46e5; font-weight:800; margin-bottom:20px;">
+      📚 Fokusphase
+    </div>
 
-    <div id="timer-display" style="font-size: 80px; font-weight: 700; color: #2d3748; margin-bottom: 40px; font-variant-numeric: tabular-nums;">
+    <div id="timer-display" style="font-size:80px; font-weight:700; color:#2d3748; margin-bottom:40px; font-variant-numeric:tabular-nums;">
       25:00
     </div>
 
-    <div style="display: flex; justify-content: center; gap: 15px;">
-      <button id="start-btn" class="btn-primary" style="font-size: 18px; padding: 15px 40px;">▶ Start</button>
-      <button id="reset-btn" class="btn-warning" style="font-size: 18px; padding: 15px 40px;">↻ Reset</button>
+    <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
+      <button id="start-btn" class="btn-primary" style="font-size:18px; padding:15px 40px;">
+        ▶ Start
+      </button>
+
+      <button id="pause-btn" class="btn-secondary" style="font-size:18px; padding:15px 40px;">
+        ⏸ Pause
+      </button>
+
+      <button id="break-btn" class="btn-success" style="font-size:18px; padding:15px 40px;">
+        ☕ Break
+      </button>
+
+      <button id="reset-btn" class="btn-warning" style="font-size:18px; padding:15px 40px;">
+        ↻ Reset
+      </button>
     </div>
+
+    <div id="session-counter" style="margin-top:35px; color:#718096; font-weight:700;">
+      🔥 Fokus-Sessions heute: 0
+    </div>
+    <div class="focus-info">
+  <h3>🌿 So funktioniert der Fokus-Timer</h3>
+
+  <p>
+    Der Fokus-Timer basiert auf der Pomodoro-Technik.
+    Arbeite konzentriert für <strong>25 Minuten</strong> und gönne dir anschließend
+    eine <strong>5-minütige Pause</strong>.
+  </p>
+
+  <p>
+    Mit <strong>Pause</strong> kannst du den Timer jederzeit anhalten.
+    Über <strong>☕ Break</strong> wechselst du direkt in die Erholungsphase.
+    Abgeschlossene Fokusphasen werden als tägliche Sessions gezählt.
+  </p>
+
+
+    <p class="focus-tip">
+  ✨ Kleine Pausen sind wichtig – nutze sie bewusst und lege dabei dein Handy zur Seite. So kannst du danach wieder mit voller Konzentration durchstarten. 🌿☕
+</p> 
+  </p>
+</div>
   </div>
 
   <script>
-    let timeLeft = 25 * 60; // 25 Minuten in Sekunden
+    let timeLeft = 25 * 60;
     let timerId = null;
+    let currentMode = 'focus';
+    let sessions = 0;
 
     const display = document.getElementById('timer-display');
     const startBtn = document.getElementById('start-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+    const breakBtn = document.getElementById('break-btn');
     const resetBtn = document.getElementById('reset-btn');
+    const modeDisplay = document.getElementById('mode-display');
+    const sessionCounter = document.getElementById('session-counter');
 
-    // Funktion, um die Zeit schön im Format MM:SS anzuzeigen
     function updateDisplay() {
       const minutes = Math.floor(timeLeft / 60);
       let seconds = timeLeft % 60;
-      if (seconds < 10) seconds = '0' + seconds; // Eine Null davorhängen (z.B. 09 statt 9)
+
+      if (seconds < 10) {
+        seconds = '0' + seconds;
+      }
+
       display.textContent = `${minutes}:${seconds}`;
     }
 
-    // Wenn man auf Start klickt...
-    startBtn.addEventListener('click', () => {
-      // Verhindern, dass der Timer doppelt startet, wenn man mehrmals klickt
-      if (timerId !== null) return; 
-      
+    function stopTimer() {
+      clearInterval(timerId);
+      timerId = null;
+    }
+
+    function resetStartButton() {
+      startBtn.textContent = '▶ Start';
+      startBtn.classList.remove('btn-success');
+      startBtn.classList.add('btn-primary');
+    }
+
+    function startTimer() {
+      if (timerId !== null) return;
+
       startBtn.textContent = '⏳ Läuft...';
-      startBtn.classList.replace('btn-primary', 'btn-success');
-      
-      // Jede Sekunde (1000 Millisekunden) einen abziehen
+      startBtn.classList.remove('btn-primary');
+      startBtn.classList.add('btn-success');
+
       timerId = setInterval(() => {
         timeLeft--;
         updateDisplay();
-        
-        // Wenn die Zeit abgelaufen ist
+
         if (timeLeft <= 0) {
-          clearInterval(timerId);
-          timerId = null;
-          startBtn.textContent = '▶ Start';
-          startBtn.classList.replace('btn-success', 'btn-primary');
-          alert('Zeit abgelaufen! Mach eine kurze Pause. ☕');
+          stopTimer();
+          resetStartButton();
+
+          if (currentMode === 'focus') {
+            sessions++;
+            sessionCounter.textContent = '🔥 Fokus-Sessions heute: ' + sessions;
+            modeDisplay.textContent = '☕ Pause';
+            currentMode = 'break';
+            timeLeft = 5 * 60;
+            updateDisplay();
+
+            alert('Super! Fokusphase abgeschlossen. Zeit für eine Pause ☕');
+          } else {
+            modeDisplay.textContent = '📚 Fokusphase';
+            currentMode = 'focus';
+            timeLeft = 25 * 60;
+            updateDisplay();
+
+            alert('Pause vorbei! Weiter geht’s mit der nächsten Fokusphase 📚');
+          }
         }
       }, 1000);
+    }
+
+    startBtn.addEventListener('click', () => {
+      startTimer();
     });
 
-    // Wenn man auf Reset klickt...
-    resetBtn.addEventListener('click', () => {
-      clearInterval(timerId); // Stoppt den laufenden Timer
-      timerId = null;
-      timeLeft = 25 * 60; // Wieder auf 25 Minuten setzen
+    pauseBtn.addEventListener('click', () => {
+      stopTimer();
+      startBtn.textContent = '▶ Weiter';
+      startBtn.classList.remove('btn-success');
+      startBtn.classList.add('btn-primary');
+    });
+
+    breakBtn.addEventListener('click', () => {
+      stopTimer();
+
+      currentMode = 'break';
+      timeLeft = 5 * 60;
+      modeDisplay.textContent = '☕ Pause';
+
       updateDisplay();
-      startBtn.textContent = '▶ Start';
-      startBtn.classList.replace('btn-success', 'btn-primary');
+      resetStartButton();
     });
-  </script>
 
+    resetBtn.addEventListener('click', () => {
+      stopTimer();
+
+      currentMode = 'focus';
+      timeLeft = 25 * 60;
+      modeDisplay.textContent = '📚 Fokusphase';
+
+      updateDisplay();
+      resetStartButton();
+    });
+
+    updateDisplay();
+  </script>
 </body>
-</html> 
+</html>
