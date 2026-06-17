@@ -114,15 +114,25 @@
         </section>
 
         <section class="appointments">
-          <h2>Termine</h2>
-          <div class="appointment">
-            <div class="date-box"><small>HEUTE</small><strong>24</strong></div>
-            <div><strong>Seminar: KI in der Praxis</strong><small>◷ 14:00 - 15:30</small></div>
-          </div>
-          <div class="appointment">
-            <div class="date-box muted"><small>MORGEN</small><strong>25</strong></div>
-            <div><strong>Lerngruppe Statistik</strong><small>◷ 10:15 - 12:00</small></div>
-          </div>
+          <h2>Anstehende Termine</h2>
+          @if(todos.filter((t) => t.due_date).length === 0)
+            <p class="muted" style="font-size:13px;">Noch keine Aufgaben mit Fälligkeitsdatum. Leg eine Aufgabe mit Datum an, dann erscheint sie hier.</p>
+          @else
+            @each(todo in todos)
+              @if(todo.due_date)
+                <div class="appointment">
+                  <div class="date-box">
+                    <small>FÄLLIG</small>
+                    <strong>{{ String(todo.due_date).slice(8, 10) }}</strong>
+                  </div>
+                  <div>
+                    <strong>{{ todo.title }}</strong>
+                    <small>{{ todo.category }} · {{ String(todo.due_date).slice(0, 10) }}</small>
+                  </div>
+                </div>
+              @end
+            @end
+          @end
         </section>
       </aside>
     </div>

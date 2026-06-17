@@ -30,6 +30,7 @@
         <form action="/todos/create" method="post" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:6px;">
           {{ csrfField() }}
           <input type="text" name="title" placeholder="+ Aufgabe hinzufügen..." required style="padding:8px 10px; border-radius:8px; border:1px solid var(--border); font-size:13px; background:var(--bg);">
+          <input type="date" name="due_date" title="Fälligkeitsdatum" style="padding:8px 10px; border-radius:8px; border:1px solid var(--border); font-size:12px; background:var(--bg);">
           <select name="category" style="padding:8px; border-radius:8px; border:1px solid var(--border); font-size:12px;">
             <option value="Uni">🎓 Uni</option>
             <option value="Haushalt">🏠 Haushalt</option>
@@ -175,23 +176,33 @@
 
   function drag(event, id) {
     draggedId = id
+    // WICHTIG: ohne dataTransfer startet der Drag in vielen Browsern (v.a. Firefox) nicht
+    event.dataTransfer.setData('text/plain', id)
+    event.dataTransfer.effectAllowed = 'move'
   }
 
   function allowDrop(event) {
     event.preventDefault()
+    event.dataTransfer.dropEffect = 'move'
   }
 
   function drop(event, quadrant) {
     event.preventDefault()
-    if (draggedId === null) return
+    const id = draggedId || event.dataTransfer.getData('text/plain')
+    if (!id) return
 
-    fetch('/todos/quadrant/' + draggedId, {
+    fetch('/todos/quadrant/' + id, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
       body: JSON.stringify({ quadrant: quadrant })
-    }).then(() => {
-      window.location.reload()
-    })
+    }).then((r) => {
+      if (r.ok) {
+        window.location.reload()
+      } else {
+        alert('Verschieben fehlgeschlagen (Status ' + r.status + ').')
+      }
+    }).catch(() => alert('Verschieben fehlgeschlagen – keine Verbindung.'))
+    draggedId = null
   }
 </script>
 
