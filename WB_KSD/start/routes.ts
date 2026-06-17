@@ -34,14 +34,31 @@ router.get('/', async ({ view }) => {
 
 
 // FESTE GEWOHNHEITEN
+// FESTE GEWOHNHEITEN - TOGGLE (erledigt / nicht erledigt)
 router.post('/habits/log/:id', async ({ params, response }) => {
   const heute = new Date().toISOString().split('T')[0]
-  await db.table('habit_logs').insert({
-    habit_id: params.id,
-    date: heute,        
-    done: true          
-  })
-  return response.redirect('/')
+  
+  const existierenderLog = await db.from('habit_logs')
+    .where('habit_id', params.id)
+    .where('date', heute)
+    .first()
+
+  if (existierenderLog) {
+    // Schon erledigt → wieder entfernen
+    await db.from('habit_logs')
+      .where('habit_id', params.id)
+      .where('date', heute)
+      .delete()
+  } else {
+    // Noch nicht erledigt → eintragen
+    await db.table('habit_logs').insert({
+      habit_id: params.id,
+      date: heute,
+      done: true
+    })
+  }
+
+  return response.redirect('/habits')
 })
 
 
@@ -61,7 +78,7 @@ router.post('/habits/create', async ({ request, response }) => {
     category: category,
   })
 
-  return response.redirect('/')
+  return response.redirect('/habits')
 })
 
 
@@ -106,7 +123,7 @@ router.post('/todos/create', async ({ request, response }) => {
 // To-Do löschen
 router.post('/todos/delete/:id', async ({ params, response }) => {
   await db.from('todos').where('id', params.id).delete()
-  return response.redirect('/')
+  return response.redirect('/habits')
 })
 
 // To-Do als erledigt markieren 
@@ -218,6 +235,7 @@ router.get('/todos', async ({ view, request }) => {
 // HABITS SEITE
 router.get('/habits', async ({ view }) => {
   const habits = await db.from('habits').select('*')
+  const categories = await db.from('habit_categories').select('*')
   const heute = new Date().toISOString().split('T')[0]
   const logsHeute = await db.from('habit_logs').where('date', heute)
   const habitsMitStatus = habits.map(habit => {
@@ -226,6 +244,7 @@ router.get('/habits', async ({ view }) => {
   })
   return view.render('pages/habits', {
     habits: habitsMitStatus,
+    categories: categories,
     heute: heute
   })
 })
@@ -241,5 +260,40 @@ router.post('/habits/delete/:id', async ({ params, response }) => {
 router.post('/todos/quadrant/:id', async ({ params, request, response }) => {
   const quadrant = request.input('quadrant')
   await db.from('todos').where('id', params.id).update({ quadrant: quadrant })
+  return response.json({ success: true })
+})
+
+
+// Einmalig: feste Kategorien in DB anlegen
+router.get('/setup-habit-categories', async () => {
+  await db.table('habit_categories').multiInsert([
+    { name: 'Gesundheit', emoji: '💪' },
+    { name: 'Lernen', emoji: '📚' },
+    { name: 'Sport', emoji: '🏃' },
+    { name: 'Ernährung', emoji: '🍎' },
+    { name: 'Mindfulness', emoji: '🧘' }
+  ])
+  return 'Kategorien wurden angelegt! Route kann jetzt wieder gelöscht werden.'
+})
+
+
+// NEUE KATEGORIE ERSTELLEN
+router.post('/habit-categories/create', async ({ request, response }) => {
+  const name = request.input('name')
+  const emoji = request.input('emoji') || '✨'
+
+  await db.table('habit_categories').insert({
+    name: name,
+    emoji: emoji
+  })
+
+  return response.redirect('/habits')
+})
+
+
+// HABIT AKTIV/INAKTIV SETZEN (Drag & Drop)
+router.post('/habits/active/:id', async ({ params, request, response }) => {
+  const isActive = request.input('is_active')
+  await db.from('habits').where('id', params.id).update({ is_active: isActive })
   return response.json({ success: true })
 })

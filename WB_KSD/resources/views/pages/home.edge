@@ -82,12 +82,33 @@
 
       <aside class="right-panel" id="habits">
         <h2>Heutige Gewohnheiten</h2>
-        <div class="habit-controls">
-          <input type="text" id="newHabit" placeholder="Neue Gewohnheit...">
-          <button type="button" onclick="addHabit()">+</button>
-        </div>
+        <p class="panel-subtitle">Kleine Schritte, große Wirkung</p>
 
-        <div id="customHabits"></div>
+        <form action="/habits/create" method="post" class="habit-controls">
+          {{ csrfField() }}
+          <input type="text" name="name" placeholder="Neue Gewohnheit..." required>
+          <input type="hidden" name="category" value="Allgemein">
+          <button type="submit">+</button>
+        </form>
+
+        <ul class="habit-list">
+          @each(habit in habits)
+            <li class="habit-card {{ habit.isDoneToday ? 'habit-done' : '' }}">
+              <div class="habit-info">
+                <strong>{{ habit.name }}</strong>
+                <small>{{ habit.category }}</small>
+              </div>
+              @if(habit.isDoneToday)
+                <span class="fire-badge">🔥 Geschafft!</span>
+              @else
+                <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
+                  {{ csrfField() }}
+                  <button type="submit" class="round-btn">✓</button>
+                </form>
+              @end
+            </li>
+          @end
+        </ul>
 
       
 
