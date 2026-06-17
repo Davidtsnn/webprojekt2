@@ -7,6 +7,21 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class HabitCategorySchema extends BaseModel {
+  static $columns = ['createdAt', 'emoji', 'id', 'name', 'updatedAt'] as const
+  $columns = HabitCategorySchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column()
+  declare emoji: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class HabitLogSchema extends BaseModel {
   static $columns = ['createdAt', 'date', 'done', 'habitId', 'id', 'updatedAt'] as const
   $columns = HabitLogSchema.$columns
@@ -25,7 +40,7 @@ export class HabitLogSchema extends BaseModel {
 }
 
 export class HabitSchema extends BaseModel {
-  static $columns = ['category', 'createdAt', 'id', 'name', 'updatedAt'] as const
+  static $columns = ['category', 'createdAt', 'id', 'isActive', 'name', 'updatedAt'] as const
   $columns = HabitSchema.$columns
   @column()
   declare category: string
@@ -34,13 +49,15 @@ export class HabitSchema extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
   @column()
+  declare isActive: boolean | null
+  @column()
   declare name: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 }
 
 export class TodoSchema extends BaseModel {
-  static $columns = ['category', 'createdAt', 'dueDate', 'filePath', 'id', 'isCompleted', 'priority', 'title', 'updatedAt'] as const
+  static $columns = ['category', 'createdAt', 'dueDate', 'filePath', 'id', 'isCompleted', 'priority', 'sortOrder', 'title', 'updatedAt'] as const
   $columns = TodoSchema.$columns
   @column()
   declare category: string | null
@@ -56,6 +73,8 @@ export class TodoSchema extends BaseModel {
   declare isCompleted: boolean | null
   @column()
   declare priority: string | null
+  @column()
+  declare sortOrder: number | null
   @column()
   declare title: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
