@@ -95,12 +95,31 @@
         <h2>Heutige Gewohnheiten</h2>
         <p class="panel-subtitle">Kleine Schritte, große Wirkung</p>
 
-        <div class="habit-controls">
-          <input type="text" id="newHabit" placeholder="Neue Gewohnheit...">
-          <button type="button" onclick="addHabit()">+</button>
-        </div>
+        <form action="/habits/create" method="post" class="habit-controls">
+          {{ csrfField() }}
+          <input type="text" name="name" placeholder="Neue Gewohnheit..." required>
+          <input type="hidden" name="category" value="Allgemein">
+          <button type="submit">+</button>
+        </form>
 
-        <div id="customHabits"></div>
+        <ul class="habit-list">
+          @each(habit in habits)
+            <li class="habit-card {{ habit.isDoneToday ? 'habit-done' : '' }}">
+              <div class="habit-info">
+                <strong>{{ habit.name }}</strong>
+                <small>{{ habit.category }}</small>
+              </div>
+              @if(habit.isDoneToday)
+                <span class="fire-badge">🔥 Geschafft!</span>
+              @else
+                <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
+                  {{ csrfField() }}
+                  <button type="submit" class="round-btn">✓</button>
+                </form>
+              @end
+            </li>
+          @end
+        </ul>
 
         <div class="motivation-box">
           🎯 Ziel heute: Deine Gewohnheiten abschließen
@@ -166,78 +185,6 @@
 </div>
 
 <script>
-  function toggleHabit(event, button) {
-    event.stopPropagation()
-    const card = button.closest('.habit-card')
-    const habitName = card.querySelector('strong').innerText
-    card.classList.toggle('habit-done')
-    if (card.classList.contains('habit-done')) {
-      button.innerText = '✓'
-      localStorage.setItem('habit-' + habitName, 'done')
-    } else {
-      button.innerText = '+'
-      localStorage.removeItem('habit-' + habitName)
-    }
-    updateGoals()
-  }
-
-  function addHabit() {
-    const input = document.getElementById('newHabit')
-    const name = input.value.trim()
-    if (!name) return
-    const customHabits = JSON.parse(localStorage.getItem('customHabits')) || []
-    if (!customHabits.includes(name)) {
-      customHabits.push(name)
-      localStorage.setItem('customHabits', JSON.stringify(customHabits))
-      createCustomHabit(name)
-    }
-    input.value = ''
-    updateGoals()
-  }
-
-  function createCustomHabit(name) {
-    const container = document.getElementById('customHabits')
-    const habit = document.createElement('div')
-    habit.className = 'habit-card'
-    habit.innerHTML = `
-      <div class="habit-info">
-        <strong>${name}</strong>
-        <small>NEUE GEWOHNHEIT</small>
-      </div>
-      <button class="round-btn" type="button" onclick="toggleHabit(event, this)">+</button>
-      <button class="delete-habit" type="button" onclick="removeHabit(event, this)">×</button>
-    `
-    container.appendChild(habit)
-  }
-
-  function removeHabit(event, button) {
-    event.stopPropagation()
-    const card = button.closest('.habit-card')
-    const name = card.querySelector('strong').innerText
-    let customHabits = JSON.parse(localStorage.getItem('customHabits')) || []
-    customHabits = customHabits.filter(function (habit) { return habit !== name })
-    localStorage.setItem('customHabits', JSON.stringify(customHabits))
-    localStorage.removeItem('habit-' + name)
-    card.remove()
-    updateGoals()
-  }
-
-  function loadCustomHabits() {
-    const customHabits = JSON.parse(localStorage.getItem('customHabits')) || []
-    customHabits.forEach(function (name) { createCustomHabit(name) })
-  }
-
-  function loadHabits() {
-    document.querySelectorAll('.habit-card').forEach(function (card) {
-      const habitName = card.querySelector('strong').innerText
-      const button = card.querySelector('.round-btn')
-      if (localStorage.getItem('habit-' + habitName) === 'done') {
-        card.classList.add('habit-done')
-        if (button) button.innerText = '✓'
-      }
-    })
-  }
-
   function updateGoals() {
     const habits = document.querySelectorAll('.habit-card')
     const doneHabits = document.querySelectorAll('.habit-card.habit-done')
@@ -263,8 +210,6 @@
     }
   }
 
-  loadCustomHabits()
-  loadHabits()
   updateGoals()
 </script>
 
