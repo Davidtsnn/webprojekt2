@@ -7,7 +7,6 @@
 
 <body>
 <div class="app-layout">
-
   @!sidebar({ active: 'home' })
 
   <main class="main-content">
@@ -21,15 +20,8 @@
     </div>
 
     <header class="topbar">
-      <div class="mood-strip">
-        <span>🌿 HEUTE IM FOKUS</span>
-        <div class="color-bar">
-          <div class="focus-study"></div>
-          <div class="focus-habits"></div>
-          <div class="focus-health"></div>
-        </div>
-        <small>📚 Lernen • 💧 Wasser • 🧘 Balance</small>
-      </div>
+      <div class="goal-strip">
+  Kleine Schritte, große Wirkung
     </header>
 
     <section class="hero">
@@ -37,9 +29,6 @@
       <h1>Guten Morgen, Student!</h1>
       <span>Plane deinen Tag ruhig, klar und fokussiert.</span>
 
-      <div class="quote-card">
-        💡 Kleine Schritte, große Wirkung — heute zählt der Fortschritt.
-      </div>
 
       <div class="progress-container">
         <div class="progress-card">
@@ -121,9 +110,7 @@
           @end
         </ul>
 
-        <div class="motivation-box">
-          🎯 Ziel heute: Deine Gewohnheiten abschließen
-        </div>
+      
 
         <section class="stats-card">
           <h2>Tagesstatistik</h2>
@@ -134,24 +121,9 @@
 
         <section class="appointments">
           <h2>Anstehende Termine</h2>
-          @if(todos.filter((t) => t.due_date).length === 0)
-            <p class="muted" style="font-size:13px;">Noch keine Aufgaben mit Fälligkeitsdatum. Leg eine Aufgabe mit Datum an, dann erscheint sie hier.</p>
-          @else
-            @each(todo in todos)
-              @if(todo.due_date)
-                <div class="appointment">
-                  <div class="date-box">
-                    <small>FÄLLIG</small>
-                    <strong>{{ String(todo.due_date).slice(8, 10) }}</strong>
-                  </div>
-                  <div>
-                    <strong>{{ todo.title }}</strong>
-                    <small>{{ todo.category }} · {{ String(todo.due_date).slice(0, 10) }}</small>
-                  </div>
-                </div>
-              @end
-            @end
-          @end
+          <p class="muted" style="font-size:13px;">Die nächsten 5 Termine</p>
+
+          <div id="calendarAppointments"></div>
         </section>
       </aside>
     </div>
@@ -185,32 +157,190 @@
 </div>
 
 <script>
+  const todoAppointments = [
+    @each(todo in todos)
+      @if(todo.due_date)
+        {
+          title: "{{ todo.title }}",
+          date: "{{ String(todo.due_date).slice(0, 10) }}",
+          note: "{{ todo.category }}"
+        },
+      @end
+    @end
+  ]
+
+  function toggleHabit(event, button) {
+    event.stopPropagation()
+    const card = button.closest('.habit-card')
+    const habitName = card.querySelector('strong').innerText
+    card.classList.toggle('habit-done')
+
+    if (card.classList.contains('habit-done')) {
+      button.innerText = '✓'
+      localStorage.setItem('habit-' + habitName, 'done')
+    } else {
+      button.innerText = '+'
+      localStorage.removeItem('habit-' + habitName)
+    }
+
+    updateGoals()
+  }
+
+  function addHabit() {
+    const input = document.getElementById('newHabit')
+    const name = input.value.trim()
+    if (!name) return
+
+    const customHabits = JSON.parse(localStorage.getItem('customHabits')) || []
+
+    if (!customHabits.includes(name)) {
+      customHabits.push(name)
+      localStorage.setItem('customHabits', JSON.stringify(customHabits))
+      createCustomHabit(name)
+    }
+
+    input.value = ''
+    updateGoals()
+  }
+
+  function createCustomHabit(name) {
+    const container = document.getElementById('customHabits')
+    const habit = document.createElement('div')
+    habit.className = 'habit-card'
+
+    habit.innerHTML = `
+      <div class="habit-info">
+        <strong>${name}</strong>
+        <small>NEUE GEWOHNHEIT</small>
+      </div>
+      <button class="round-btn" type="button" onclick="toggleHabit(event, this)">+</button>
+      <button class="delete-habit" type="button" onclick="removeHabit(event, this)">×</button>
+    `
+
+    container.appendChild(habit)
+  }
+
+  function removeHabit(event, button) {
+    event.stopPropagation()
+    const card = button.closest('.habit-card')
+    const name = card.querySelector('strong').innerText
+
+    let customHabits = JSON.parse(localStorage.getItem('customHabits')) || []
+    customHabits = customHabits.filter(function (habit) {
+      return habit !== name
+    })
+
+    localStorage.setItem('customHabits', JSON.stringify(customHabits))
+    localStorage.removeItem('habit-' + name)
+    card.remove()
+    updateGoals()
+  }
+
+  function loadCustomHabits() {
+    const customHabits = JSON.parse(localStorage.getItem('customHabits')) || []
+    customHabits.forEach(function (name) {
+      createCustomHabit(name)
+    })
+  }
+
+  function loadHabits() {
+    document.querySelectorAll('.habit-card').forEach(function (card) {
+      const habitName = card.querySelector('strong').innerText
+      const button = card.querySelector('.round-btn')
+
+      if (localStorage.getItem('habit-' + habitName) === 'done') {
+        card.classList.add('habit-done')
+        if (button) button.innerText = '✓'
+      }
+    })
+  }
+
   function updateGoals() {
     const habits = document.querySelectorAll('.habit-card')
     const doneHabits = document.querySelectorAll('.habit-card.habit-done')
     let habitPercent = habits.length > 0 ? Math.round((doneHabits.length / habits.length) * 100) : 0
 
     const habitCircle = document.querySelector('.progress-circle.habit-goal')
+
     if (habitCircle) {
       habitCircle.querySelector('strong').innerText = habitPercent + '%'
       habitCircle.style.background = `conic-gradient(var(--primary) ${habitPercent * 3.6}deg, var(--primary-soft) 0deg)`
     }
 
     const habitStats = document.getElementById('habitStats')
-    if (habitStats) habitStats.innerText = '🌿 Gewohnheiten: ' + doneHabits.length + ' von ' + habits.length + ' erledigt'
+
+    if (habitStats) {
+      habitStats.innerText = '🌿 Gewohnheiten: ' + doneHabits.length + ' von ' + habits.length + ' erledigt'
+    }
 
     const tasks = document.querySelectorAll('.task-card')
     const doneTasks = document.querySelectorAll('.completed-text')
     let learningPercent = tasks.length > 0 ? Math.round((doneTasks.length / tasks.length) * 100) : 0
 
     const learningCircle = document.querySelector('.progress-circle.learning')
+
     if (learningCircle) {
       learningCircle.querySelector('strong').innerText = learningPercent + '%'
       learningCircle.style.background = `conic-gradient(var(--success) ${learningPercent * 3.6}deg, var(--success-soft) 0deg)`
     }
   }
 
+  function loadCalendarAppointments() {
+    const container = document.getElementById('calendarAppointments')
+    if (!container) return
+
+    const calendarEvents = JSON.parse(localStorage.getItem('calendarEvents')) || []
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const allAppointments = todoAppointments.concat(calendarEvents)
+
+    const upcomingEvents = allAppointments
+      .filter(function (event) {
+        const eventDate = new Date(event.date)
+        eventDate.setHours(0, 0, 0, 0)
+        return eventDate >= today
+      })
+      .sort(function (a, b) {
+        return new Date(a.date) - new Date(b.date)
+      })
+      .slice(0, 5)
+
+    container.innerHTML = ''
+
+    if (upcomingEvents.length === 0) {
+      container.innerHTML = `
+        <p class="muted" style="font-size:13px;">
+          Noch keine anstehenden Termine.
+        </p>
+      `
+      return
+    }
+
+    upcomingEvents.forEach(function (event) {
+      const day = String(event.date).slice(8, 10)
+
+      container.innerHTML += `
+        <div class="appointment">
+          <div class="date-box">
+            <small>FÄLLIG</small>
+            <strong>${day}</strong>
+          </div>
+
+          <div>
+            <strong>${event.important ? '🔴 ' : ''}${event.title}</strong>
+            <small>${event.note ? event.note + ' · ' : ''}${event.date}</small>
+          </div>
+        </div>
+      `
+    })
+  }
+
+  loadCustomHabits()
+  loadHabits()
   updateGoals()
+  loadCalendarAppointments()
 </script>
 
 </body>
