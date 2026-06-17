@@ -6,6 +6,8 @@
 </head>
 <body>
 
+<meta name="csrf-token" content="{{ csrfToken }}">
+
 <div class="app-layout">
 
   @!sidebar({ active: 'habits' })
@@ -20,59 +22,130 @@
       {{ csrfField() }}
       <input type="text" name="name" placeholder="Neue Gewohnheit (z.B. Wasser trinken)" required>
       <div class="add-todo-row">
-        <select name="category">
-          <option value="Gesundheit">💪 Gesundheit</option>
-          <option value="Lernen">📚 Lernen</option>
-          <option value="Sport">🏃 Sport</option>
-          <option value="Ernährung">🥗 Ernährung</option>
-          <option value="Mindfulness">🧘 Mindfulness</option>
+        <select name="category" id="category-select" onchange="document.getElementById('new-category-fields').style.display = this.value === '__new__' ? 'flex' : 'none'">
+          @each(cat in categories)
+            <option value="{{ cat.name }}">{{ cat.emoji }} {{ cat.name }}</option>
+          @end
+          <option value="__new__">+ Neue Kategorie...</option>
         </select>
         <button type="submit" class="btn btn-primary">+ Hinzufügen</button>
       </div>
     </form>
 
-    <div class="section-title">📅 Heute</div>
+    <div id="new-category-fields" style="display:none; gap:10px; margin-top:-8px; margin-bottom:16px;" class="add-todo-row">
+      <input type="text" id="new-cat-name" placeholder="Name der Kategorie (z.B. Kreativität)">
+      <input type="text" id="new-cat-emoji" placeholder="Emoji (z.B. 🎨)" style="max-width:80px;">
+      <button type="button" class="btn btn-primary" onclick="createCategory()">Kategorie speichern</button>
+    </div>
 
-    <ul class="habit-list">
-      @each(habit in habits)
-        <li class="habit-card">
-          <div class="habit-info">
-            <strong>{{ habit.name }}</strong>
-            <small>{{ habit.category }}</small>
-          </div>
-          @if(habit.isDoneToday)
-            <span class="fire-badge">🔥 Geschafft!</span>
-          @else
-            <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
-              {{ csrfField() }}
-              <button type="submit" class="btn btn-ghost">✅ Erledigt</button>
-            </form>
-          @end
-        </li>
-      @end
-    </ul>
+    <div class="section-title">📅 Aktuell</div>
 
-    <hr class="section-divider">
+<ul class="habit-list" id="aktuell-list" ondragover="allowDrop(event)" ondrop="dropOnAktuell(event)">
+  @each(habit in habits)
+    @if(habit.is_active)
+      <li class="habit-card" data-id="{{ habit.id }}" draggable="true" ondragstart="drag(event, {{ habit.id }})">
+        <div class="habit-info">
+          <strong>{{ habit.name }}</strong>
+          <small>{{ habit.category }}</small>
+        </div>
+        @if(habit.isDoneToday)
+  <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
+    {{ csrfField() }}
+    <button type="submit" class="fire-badge" style="border:none; cursor:pointer;">🔥 Geschafft!</button>
+  </form>
+@else
+  <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
+    {{ csrfField() }}
+    <button type="submit" class="btn btn-ghost">✅ Erledigt</button>
+  </form>
+@end
+      </li>
+    @end
+  @end
+  <li class="drop-hint" style="list-style:none;">+ hierher ziehen um zu aktivieren</li>
+</ul>
 
-    <div class="section-title">⚙️ Verwalten</div>
+<hr class="section-divider">
 
-    <ul class="habit-list">
-      @each(habit in habits)
-        <li class="habit-card">
-          <div class="habit-info">
-            <strong>{{ habit.name }}</strong>
-            <small>{{ habit.category }}</small>
-          </div>
-          <form action="/habits/delete/{{ habit.id }}" method="post" style="margin:0;">
-            {{ csrfField() }}
-            <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
-          </form>
-        </li>
-      @end
-    </ul>
+<div class="section-title">⚙️ Alle Gewohnheiten</div>
+
+<ul class="habit-list" id="alle-list" ondragover="allowDrop(event)" ondrop="dropOnAlle(event)">
+  @each(habit in habits)
+    @unless(habit.is_active)
+      <li class="habit-card" data-id="{{ habit.id }}" draggable="true" ondragstart="drag(event, {{ habit.id }})">
+        <div class="habit-info">
+          <strong>{{ habit.name }}</strong>
+          <small>{{ habit.category }}</small>
+        </div>
+        <form action="/habits/delete/{{ habit.id }}" method="post" style="margin:0;">
+          {{ csrfField() }}
+          <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
+        </form>
+      </li>
+    @end
+  @end
+</ul>
 
   </main>
 </div>
 
+<script>
+  function createCategory() {
+    const name = document.getElementById('new-cat-name').value.trim()
+    const emoji = document.getElementById('new-cat-emoji').value.trim() || '✨'
+
+    if (!name) {
+      alert('Bitte gib einen Namen für die Kategorie ein.')
+      return
+    }
+
+    fetch('/habit-categories/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+      },
+      body: JSON.stringify({ name: name, emoji: emoji })
+    }).then(() => {
+      window.location.reload()
+    })
+  }
+
+  let draggedHabitId = null
+
+  function drag(event, id) {
+    draggedHabitId = id
+  }
+
+  function allowDrop(event) {
+    event.preventDefault()
+  }
+
+  function dropOnAktuell(event) {
+    event.preventDefault()
+    if (draggedHabitId === null) return
+    setHabitActive(draggedHabitId, true)
+  }
+
+  function dropOnAlle(event) {
+    event.preventDefault()
+    if (draggedHabitId === null) return
+    setHabitActive(draggedHabitId, false)
+  }
+
+  function setHabitActive(id, isActive) {
+    fetch('/habits/active/' + id, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+      },
+      body: JSON.stringify({ is_active: isActive })
+    }).then(() => {
+      window.location.reload()
+    })
+  }
+</script>
+
 </body>
-</html>
+</html> 
