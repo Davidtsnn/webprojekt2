@@ -4,14 +4,21 @@ export default class extends BaseSchema {
   protected tableName = 'todos'
 
   async up() {
-    this.schema.alterTable(this.tableName, (table) => {
+    this.schema.createTable(this.tableName, (table) => {
+      table.increments('id')
+      table.integer('user_id').unsigned().references('id').inTable('users').onDelete('CASCADE')
+      table.string('title').notNullable()
+      table.string('category').nullable()
+      table.string('priority').nullable()
+      table.date('due_date').nullable()
+      table.boolean('is_completed').defaultTo(false)
+      table.string('file_path').nullable()
       table.string('quadrant').nullable()
+      table.timestamps(true, true)
     })
   }
 
   async down() {
-    this.schema.alterTable(this.tableName, (table) => {
-      table.dropColumn('quadrant')
-    })
+    this.schema.dropTable(this.tableName)
   }
 }
