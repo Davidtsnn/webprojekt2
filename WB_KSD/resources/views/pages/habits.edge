@@ -49,72 +49,48 @@
     </form>
 
     {{-- Neue Kategorie Formular --}}
-    {{-- Neue Kategorie Formular --}}
-<div id="new-category-fields">
-  <div class="new-cat-header">
-    <span>Neue Kategorie</span>
-    <button type="button" onclick="toggleNewCategory()" class="new-cat-close">✕</button>
-  </div>
-  <div class="new-cat-row">
-    <input type="text" id="new-cat-name" placeholder="Name (z.B. Kreativität)">
-    <div class="emoji-picker-wrapper">
-      <input type="text" id="new-cat-emoji" placeholder="Emoji" readonly onclick="toggleEmojiPicker()">
-      <div id="emoji-picker" class="emoji-picker">
-        @each(emoji in ['🏃','💧','📚','🎨','🧘','💪','🥗','😴','🎵','💻','🌿','❤️','🧠','✍️','🌅'])
-          <span onclick="pickEmoji('{{ emoji }}')">{{ emoji }}</span>
-        @end
+    <div id="new-category-fields">
+      <div class="new-cat-header">
+        <span>Neue Kategorie</span>
+        <button type="button" onclick="toggleNewCategory()" class="new-cat-close">✕</button>
+      </div>
+      <div class="new-cat-row">
+        <input type="text" id="new-cat-name" placeholder="Name (z.B. Kreativität)">
+        <div class="emoji-picker-wrapper">
+          <input type="text" id="new-cat-emoji" placeholder="Emoji" readonly onclick="toggleEmojiPicker()">
+          <div id="emoji-picker" class="emoji-picker">
+            @each(emoji in ['🏃','💧','📚','🎨','🧘','💪','🥗','😴','🎵','💻','🌿','❤️','🧠','✍️','🌅'])
+              <span onclick="pickEmoji('{{ emoji }}')">{{ emoji }}</span>
+            @end
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="createCategory()">Speichern</button>
       </div>
     </div>
-    <button type="button" class="btn btn-primary" onclick="createCategory()">Speichern</button>
-  </div>
-</div>
 
     <div class="section-title">📅 Aktuell</div>
 
     <ul class="habit-list" id="aktuell-list" ondragover="allowDrop(event)" ondrop="dropOnAktuell(event)">
       @each(habit in habits)
-        @if(habit.is_active)
-          <li class="habit-card" data-id="{{ habit.id }}" draggable="true" ondragstart="drag(event, {{ habit.id }})">
-            <div class="habit-info">
-              <strong>{{ habit.name }}</strong>
-              <small>{{ habit.category }}</small>
-            </div>
-            @if(habit.isDoneToday)
-              <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
-                {{ csrfField() }}
-                <button type="submit" class="fire-badge" style="border:none; cursor:pointer;">🔥 Geschafft!</button>
-              </form>
-            @else
-              <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
-                {{ csrfField() }}
-                <button type="submit" class="btn btn-ghost">✅ Erledigt</button>
-              </form>
-            @end
-          </li>
-        @end
+        <li class="habit-card" data-id="{{ habit.id }}" draggable="true" ondragstart="drag(event, {{ habit.id }})">
+          <div class="habit-info">
+            <strong>{{ habit.name }}</strong>
+            <small>{{ habit.category }}</small>
+          </div>
+          @if(habit.isDoneToday)
+            <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
+              {{ csrfField() }}
+              <button type="submit" class="fire-badge" style="border:none; cursor:pointer;">🔥 Geschafft!</button>
+            </form>
+          @else
+            <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
+              {{ csrfField() }}
+              <button type="submit" class="btn btn-ghost">✅ Erledigt</button>
+            </form>
+          @end
+        </li>
       @end
       <li class="drop-hint" style="list-style:none;">+ hierher ziehen um zu aktivieren</li>
-    </ul>
-
-    <hr class="section-divider">
-
-    <div class="section-title">⚙️ Alle Gewohnheiten</div>
-
-    <ul class="habit-list" id="alle-list" ondragover="allowDrop(event)" ondrop="dropOnAlle(event)">
-      @each(habit in habits)
-        @unless(habit.is_active)
-          <li class="habit-card" data-id="{{ habit.id }}" draggable="true" ondragstart="drag(event, {{ habit.id }})">
-            <div class="habit-info">
-              <strong>{{ habit.name }}</strong>
-              <small>{{ habit.category }}</small>
-            </div>
-            <form action="/habits/delete/{{ habit.id }}" method="post" style="margin:0;">
-              {{ csrfField() }}
-              <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
-            </form>
-          </li>
-        @end
-      @end
     </ul>
 
   </main>
@@ -133,14 +109,14 @@
   }
 
   function toggleNewCategory() {
-  document.getElementById('custom-dropdown').style.display = 'none'
-  const fields = document.getElementById('new-category-fields')
-  if (fields.style.display === 'flex') {
-    fields.style.display = 'none'
-  } else {
-    fields.style.display = 'flex'
+    document.getElementById('custom-dropdown').style.display = 'none'
+    const fields = document.getElementById('new-category-fields')
+    if (fields.style.display === 'flex') {
+      fields.style.display = 'none'
+    } else {
+      fields.style.display = 'flex'
+    }
   }
-}
 
   document.addEventListener('click', function(e) {
     const wrapper = document.querySelector('.custom-select-wrapper')
@@ -184,12 +160,6 @@
     setHabitActive(draggedHabitId, true)
   }
 
-  function dropOnAlle(event) {
-    event.preventDefault()
-    if (draggedHabitId === null) return
-    setHabitActive(draggedHabitId, false)
-  }
-
   function setHabitActive(id, isActive) {
     fetch('/habits/active/' + id, {
       method: 'POST',
@@ -204,15 +174,14 @@
   }
 
   function toggleEmojiPicker() {
-  const picker = document.getElementById('emoji-picker')
-  picker.style.display = picker.style.display === 'grid' ? 'none' : 'grid'
-}
+    const picker = document.getElementById('emoji-picker')
+    picker.style.display = picker.style.display === 'grid' ? 'none' : 'grid'
+  }
 
-function pickEmoji(emoji) {
-  document.getElementById('new-cat-emoji').value = emoji
-  document.getElementById('emoji-picker').style.display = 'none'
-}
-
+  function pickEmoji(emoji) {
+    document.getElementById('new-cat-emoji').value = emoji
+    document.getElementById('emoji-picker').style.display = 'none'
+  }
 </script>
 
 </body>

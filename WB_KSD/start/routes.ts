@@ -44,13 +44,14 @@ router.group(() => {
   })
 
   router.post('/habits/create', async ({ request, response, auth }) => {
-    await db.table('habits').insert({
-      user_id: auth.user!.id,
-      name: request.input('name'),
-      category: request.input('category'),
-    })
-    return response.redirect('/habits')
+  await db.table('habits').insert({
+    user_id: auth.user!.id,
+    name: request.input('name'),
+    category: request.input('category'),
+    is_active: 1,
   })
+  return response.redirect('/habits')
+})
 
   router.get('/habits', async ({ view, auth }) => {
     const userId = auth.user!.id
@@ -68,12 +69,6 @@ router.group(() => {
   router.post('/habits/delete/:id', async ({ params, response, auth }) => {
     await db.from('habits').where('id', params.id).where('user_id', auth.user!.id).delete()
     return response.redirect('/habits')
-  })
-
-  router.post('/habits/active/:id', async ({ params, request, response, auth }) => {
-    await db.from('habits').where('id', params.id).where('user_id', auth.user!.id)
-      .update({ is_active: request.input('is_active') })
-    return response.json({ success: true })
   })
 
   // ── KATEGORIEN (für alle gleich) ──
