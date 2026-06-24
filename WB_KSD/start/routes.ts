@@ -163,4 +163,16 @@ router.group(() => {
     return view.render('pages/focus')
   })
 
-}).use(middleware.auth())
+// HABIT AKTIV/INAKTIV SETZEN (Drag & Drop)
+router.post('/habits/active/:id', async ({ params, request, response }) => {
+  const isActive = request.input('is_active')
+  await db.from('habits').where('id', params.id).update({ is_active: isActive })
+  return response.json({ success: true })
+})
+
+
+// KATEGORIE LÖSCHEN
+router.post('/habit-categories/delete/:id', async ({ params, response }) => {
+  await db.from('habit_categories').where('id', params.id).delete()
+  return response.redirect('/habits')
+})
