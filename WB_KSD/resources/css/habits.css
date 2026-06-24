@@ -8,3 +8,32 @@
 @import './theme-board.css';
 
 /* ---- ab hier eigene Habits-spezifische Styles ---- */
+
+/* ── Neue Kategorie Formular ── */
+/* ── Neue Kategorie Formular ── */
+#new-category-fields {
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-top: 4px;
+  margin-bottom: 24px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#new-category-fields input {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--bg);
+  color: var(--text);
+  width: 100%;
+}
+
+#new-category-fields button {
+  align-self: flex-start;
+}
