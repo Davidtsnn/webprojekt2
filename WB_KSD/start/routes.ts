@@ -40,7 +40,7 @@ router.group(() => {
     } else {
       await db.table('habit_logs').insert({ habit_id: params.id, date: heute, done: true })
     }
-    return response.redirect('/habits')
+    return response.redirect().back()
   })
 
   router.post('/habits/create', async ({ request, response, auth }) => {
@@ -127,7 +127,7 @@ router.group(() => {
     const todo = await db.from('todos').where('id', params.id).where('user_id', auth.user!.id).first()
     await db.from('todos').where('id', params.id).where('user_id', auth.user!.id)
       .update({ is_completed: !todo.is_completed })
-    return response.redirect('/')
+    return response.redirect().back()
   })
 
   router.get('/todos/edit/:id', async ({ params, view, auth }) => {
@@ -163,16 +163,9 @@ router.group(() => {
     return view.render('pages/focus')
   })
 
-// HABIT AKTIV/INAKTIV SETZEN (Drag & Drop)
-router.post('/habits/active/:id', async ({ params, request, response }) => {
-  const isActive = request.input('is_active')
-  await db.from('habits').where('id', params.id).update({ is_active: isActive })
-  return response.json({ success: true })
-})
-
-
 // KATEGORIE LÖSCHEN
 router.post('/habit-categories/delete/:id', async ({ params, response }) => {
   await db.from('habit_categories').where('id', params.id).delete()
   return response.redirect('/habits')
 })
+}).use(middleware.auth())

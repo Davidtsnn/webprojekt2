@@ -99,7 +99,10 @@
                 <small>{{ habit.category }}</small>
               </div>
               @if(habit.isDoneToday)
-                <span class="fire-badge">🔥 Geschafft!</span>
+                <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
+                  {{ csrfField() }}
+                  <button type="submit" class="fire-badge" style="border:none; cursor:pointer;">🔥 Geschafft!</button>
+                </form>
               @else
                 <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
                   {{ csrfField() }}
