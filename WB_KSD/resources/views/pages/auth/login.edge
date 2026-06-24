@@ -1,34 +1,33 @@
-@layout()
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <title>Login – LifeSync</title>
+  @vite(['resources/css/base.css'])
+</head>
+<body>
   <div class="form-container">
-    <div>
-      <h1> Login </h1>
-      <p>
-        Enter your email and password below to log in
-      </p>
-    </div>
+    <h1>Anmelden</h1>
+    <p class="muted">Melde dich an, um auf dein LifeSync zuzugreifen.</p>
 
-    <div>
-      @form({ route: 'session.store', method: 'POST' })
-        <div>
-          @field.root({ name: 'email' })
-            @!field.label({ text: 'Email' })
-            @!input.control({ type: 'email' })
-            @!field.error()
-          @end
-        </div>
+    <form action="/login" method="post">
+      {{ csrfField() }}
 
-        <div>
-          @field.root({ name: 'password' })
-            @!field.label({ text: 'Password' })
-            @!input.control({ type: 'password' })
-            @!field.error()
-          @end
-        </div>
+      <div style="margin-bottom:14px;">
+        <label for="email">E-Mail</label>
+        <input type="email" name="email" id="email" placeholder="du@beispiel.de" required>
+      </div>
 
-        <div>
-          @!button({ text: 'Login', type: 'submit' })
-        </div>
-      @end
-    </div>
+      <div style="margin-bottom:18px;">
+        <label for="password">Passwort</label>
+        <input type="password" name="password" id="password" placeholder="••••••••" required>
+      </div>
+
+      <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">Einloggen</button>
+    </form>
+
+    <p class="muted" style="margin-top:16px; font-size:13px;">
+      Noch kein Konto? <a href="/register">Registrieren</a>
+    </p>
   </div>
-@end
+</body>
+</html>

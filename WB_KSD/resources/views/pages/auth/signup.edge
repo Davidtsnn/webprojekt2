@@ -1,50 +1,43 @@
-@layout()
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <title>Registrieren – LifeSync</title>
+  @vite(['resources/css/base.css'])
+</head>
+<body>
   <div class="form-container">
-    <div>
-      <h1> Signup </h1>
-      <p>
-        Enter your details below to create your account
-      </p>
-    </div>
+    <h1>Konto erstellen</h1>
+    <p class="muted">Leg dir ein LifeSync-Konto an.</p>
 
-    <div>
-      @form({ route: 'new_account.store', method: 'POST' })
-        <div>
-          @field.root({ name: 'fullName' })
-            @!field.label({ text: 'Full name' })
-            @!input.control()
-            @!field.error()
-          @end
-        </div>
+    <form action="/register" method="post">
+      {{ csrfField() }}
 
-        <div>
-          @field.root({ name: 'email' })
-            @!field.label({ text: 'Email' })
-            @!input.control({ type: 'email', autocomplete: 'email' })
-            @!field.error()
-          @end
-        </div>
+      <div style="margin-bottom:14px;">
+        <label for="fullName">Name</label>
+        <input type="text" name="fullName" id="fullName" placeholder="Max Mustermann">
+      </div>
 
-        <div>
-          @field.root({ name: 'password' })
-            @!field.label({ text: 'Password' })
-            @!input.control({ type: 'password', autocomplete: 'new-password' })
-            @!field.error()
-          @end
-        </div>
+      <div style="margin-bottom:14px;">
+        <label for="email">E-Mail</label>
+        <input type="email" name="email" id="email" placeholder="du@beispiel.de" required>
+      </div>
 
-        <div>
-          @field.root({ name: 'passwordConfirmation' })
-            @!field.label({ text: 'Confirm password' })
-            @!input.control({ type: 'password', autocomplete: 'new-password' })
-            @!field.error()
-          @end
-        </div>
+      <div style="margin-bottom:14px;">
+        <label for="password">Passwort (mind. 8 Zeichen)</label>
+        <input type="password" name="password" id="password" required>
+      </div>
 
-        <div>
-          @!button({ text: 'Sign up', type: 'submit' })
-        </div>
-      @end
-    </div>
+      <div style="margin-bottom:18px;">
+        <label for="passwordConfirmation">Passwort wiederholen</label>
+        <input type="password" name="passwordConfirmation" id="passwordConfirmation" required>
+      </div>
+
+      <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">Konto erstellen</button>
+    </form>
+
+    <p class="muted" style="margin-top:16px; font-size:13px;">
+      Schon ein Konto? <a href="/login">Einloggen</a>
+    </p>
   </div>
-@end
+</body>
+</html>

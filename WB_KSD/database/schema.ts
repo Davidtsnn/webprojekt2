@@ -40,7 +40,7 @@ export class HabitLogSchema extends BaseModel {
 }
 
 export class HabitSchema extends BaseModel {
-  static $columns = ['category', 'createdAt', 'id', 'isActive', 'name', 'updatedAt'] as const
+  static $columns = ['category', 'createdAt', 'id', 'isActive', 'name', 'updatedAt', 'userId'] as const
   $columns = HabitSchema.$columns
   @column()
   declare category: string
@@ -54,10 +54,12 @@ export class HabitSchema extends BaseModel {
   declare name: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+  @column()
+  declare userId: number | null
 }
 
 export class TodoSchema extends BaseModel {
-  static $columns = ['category', 'createdAt', 'dueDate', 'filePath', 'id', 'isCompleted', 'priority', 'sortOrder', 'title', 'updatedAt'] as const
+  static $columns = ['category', 'createdAt', 'dueDate', 'filePath', 'id', 'isCompleted', 'priority', 'quadrant', 'title', 'updatedAt', 'userId'] as const
   $columns = TodoSchema.$columns
   @column()
   declare category: string | null
@@ -74,11 +76,13 @@ export class TodoSchema extends BaseModel {
   @column()
   declare priority: string | null
   @column()
-  declare sortOrder: number | null
+  declare quadrant: string | null
   @column()
   declare title: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+  @column()
+  declare userId: number | null
 }
 
 export class UserSchema extends BaseModel {
