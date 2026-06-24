@@ -297,3 +297,10 @@ router.post('/habits/active/:id', async ({ params, request, response }) => {
   await db.from('habits').where('id', params.id).update({ is_active: isActive })
   return response.json({ success: true })
 })
+
+
+// KATEGORIE LÖSCHEN
+router.post('/habit-categories/delete/:id', async ({ params, response }) => {
+  await db.from('habit_categories').where('id', params.id).delete()
+  return response.redirect('/habits')
+})

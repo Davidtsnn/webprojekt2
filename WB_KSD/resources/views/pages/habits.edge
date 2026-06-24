@@ -20,85 +20,142 @@
 
     <form action="/habits/create" method="post" class="add-todo-form">
       {{ csrfField() }}
+      <input type="hidden" name="category" id="selected-category" value="">
       <input type="text" name="name" placeholder="Neue Gewohnheit (z.B. Wasser trinken)" required>
       <div class="add-todo-row">
-        <select name="category" id="category-select" onchange="document.getElementById('new-category-fields').style.display = this.value === '__new__' ? 'flex' : 'none'">
-          @each(cat in categories)
-            <option value="{{ cat.name }}">{{ cat.emoji }} {{ cat.name }}</option>
-          @end
-          <option value="__new__">+ Neue Kategorie...</option>
-        </select>
+
+        {{-- Custom Dropdown --}}
+        <div class="custom-select-wrapper" style="flex:1; position:relative;">
+          <div class="custom-select-trigger" onclick="toggleDropdown()" style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg); cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+            <span id="selected-label">Kategorie auswählen</span>
+            <span>▾</span>
+          </div>
+          <div id="custom-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:white; border:1px solid var(--border); border-radius:var(--radius-sm); box-shadow:var(--shadow); z-index:999; max-height:250px; overflow-y:auto;">
+            @each(cat in categories)
+              <div class="dropdown-item" style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; cursor:pointer; border-bottom:1px solid var(--border);">
+                <span onclick="selectCategory('{{ cat.name }}', '{{ cat.emoji }} {{ cat.name }}')">{{ cat.emoji }} {{ cat.name }}</span>
+                <form action="/habit-categories/delete/{{ cat.id }}" method="post" style="margin:0;">
+                  {{ csrfField() }}
+                  <button type="submit" style="border:none; background:none; color:#ef4444; cursor:pointer; font-size:14px; padding:0 4px;">✕</button>
+                </form>
+              </div>
+            @end
+            <div style="padding:8px 12px; cursor:pointer; color:var(--accent); font-weight:500;" onclick="toggleNewCategory()">+ Neue Kategorie...</div>
+          </div>
+        </div>
+
         <button type="submit" class="btn btn-primary">+ Hinzufügen</button>
       </div>
     </form>
 
-    <div id="new-category-fields">
-        <input type="text" id="new-cat-name" placeholder="Name der Kategorie (z.B. Kreativität)">
-      <input type="text" id="new-cat-emoji" placeholder="Emoji (z.B. 🎨)" style="max-width:80px;">
-      <button type="button" class="btn btn-primary" onclick="createCategory()">Kategorie speichern</button>
+    {{-- Neue Kategorie Formular --}}
+    {{-- Neue Kategorie Formular --}}
+<div id="new-category-fields">
+  <div class="new-cat-header">
+    <span>Neue Kategorie</span>
+    <button type="button" onclick="toggleNewCategory()" class="new-cat-close">✕</button>
+  </div>
+  <div class="new-cat-row">
+    <input type="text" id="new-cat-name" placeholder="Name (z.B. Kreativität)">
+    <div class="emoji-picker-wrapper">
+      <input type="text" id="new-cat-emoji" placeholder="Emoji" readonly onclick="toggleEmojiPicker()">
+      <div id="emoji-picker" class="emoji-picker">
+        @each(emoji in ['🏃','💧','📚','🎨','🧘','💪','🥗','😴','🎵','💻','🌿','❤️','🧠','✍️','🌅'])
+          <span onclick="pickEmoji('{{ emoji }}')">{{ emoji }}</span>
+        @end
+      </div>
     </div>
+    <button type="button" class="btn btn-primary" onclick="createCategory()">Speichern</button>
+  </div>
+</div>
 
     <div class="section-title">📅 Aktuell</div>
 
-<ul class="habit-list" id="aktuell-list" ondragover="allowDrop(event)" ondrop="dropOnAktuell(event)">
-  @each(habit in habits)
-    @if(habit.is_active)
-      <li class="habit-card" data-id="{{ habit.id }}" draggable="true" ondragstart="drag(event, {{ habit.id }})">
-        <div class="habit-info">
-          <strong>{{ habit.name }}</strong>
-          <small>{{ habit.category }}</small>
-        </div>
-        @if(habit.isDoneToday)
-  <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
-    {{ csrfField() }}
-    <button type="submit" class="fire-badge" style="border:none; cursor:pointer;">🔥 Geschafft!</button>
-  </form>
-@else
-  <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
-    {{ csrfField() }}
-    <button type="submit" class="btn btn-ghost">✅ Erledigt</button>
-  </form>
-@end
-      </li>
-    @end
-  @end
-  <li class="drop-hint" style="list-style:none;">+ hierher ziehen um zu aktivieren</li>
-</ul>
+    <ul class="habit-list" id="aktuell-list" ondragover="allowDrop(event)" ondrop="dropOnAktuell(event)">
+      @each(habit in habits)
+        @if(habit.is_active)
+          <li class="habit-card" data-id="{{ habit.id }}" draggable="true" ondragstart="drag(event, {{ habit.id }})">
+            <div class="habit-info">
+              <strong>{{ habit.name }}</strong>
+              <small>{{ habit.category }}</small>
+            </div>
+            @if(habit.isDoneToday)
+              <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
+                {{ csrfField() }}
+                <button type="submit" class="fire-badge" style="border:none; cursor:pointer;">🔥 Geschafft!</button>
+              </form>
+            @else
+              <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
+                {{ csrfField() }}
+                <button type="submit" class="btn btn-ghost">✅ Erledigt</button>
+              </form>
+            @end
+          </li>
+        @end
+      @end
+      <li class="drop-hint" style="list-style:none;">+ hierher ziehen um zu aktivieren</li>
+    </ul>
 
-<hr class="section-divider">
+    <hr class="section-divider">
 
-<div class="section-title">⚙️ Alle Gewohnheiten</div>
+    <div class="section-title">⚙️ Alle Gewohnheiten</div>
 
-<ul class="habit-list" id="alle-list" ondragover="allowDrop(event)" ondrop="dropOnAlle(event)">
-  @each(habit in habits)
-    @unless(habit.is_active)
-      <li class="habit-card" data-id="{{ habit.id }}" draggable="true" ondragstart="drag(event, {{ habit.id }})">
-        <div class="habit-info">
-          <strong>{{ habit.name }}</strong>
-          <small>{{ habit.category }}</small>
-        </div>
-        <form action="/habits/delete/{{ habit.id }}" method="post" style="margin:0;">
-          {{ csrfField() }}
-          <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
-        </form>
-      </li>
-    @end
-  @end
-</ul>
+    <ul class="habit-list" id="alle-list" ondragover="allowDrop(event)" ondrop="dropOnAlle(event)">
+      @each(habit in habits)
+        @unless(habit.is_active)
+          <li class="habit-card" data-id="{{ habit.id }}" draggable="true" ondragstart="drag(event, {{ habit.id }})">
+            <div class="habit-info">
+              <strong>{{ habit.name }}</strong>
+              <small>{{ habit.category }}</small>
+            </div>
+            <form action="/habits/delete/{{ habit.id }}" method="post" style="margin:0;">
+              {{ csrfField() }}
+              <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
+            </form>
+          </li>
+        @end
+      @end
+    </ul>
 
   </main>
 </div>
 
 <script>
+  function toggleDropdown() {
+    const dd = document.getElementById('custom-dropdown')
+    dd.style.display = dd.style.display === 'none' ? 'block' : 'none'
+  }
+
+  function selectCategory(value, label) {
+    document.getElementById('selected-category').value = value
+    document.getElementById('selected-label').innerText = label
+    document.getElementById('custom-dropdown').style.display = 'none'
+  }
+
+  function toggleNewCategory() {
+  document.getElementById('custom-dropdown').style.display = 'none'
+  const fields = document.getElementById('new-category-fields')
+  if (fields.style.display === 'flex') {
+    fields.style.display = 'none'
+  } else {
+    fields.style.display = 'flex'
+  }
+}
+
+  document.addEventListener('click', function(e) {
+    const wrapper = document.querySelector('.custom-select-wrapper')
+    if (wrapper && !wrapper.contains(e.target)) {
+      document.getElementById('custom-dropdown').style.display = 'none'
+    }
+  })
+
   function createCategory() {
     const name = document.getElementById('new-cat-name').value.trim()
     const emoji = document.getElementById('new-cat-emoji').value.trim() || '✨'
-
     if (!name) {
       alert('Bitte gib einen Namen für die Kategorie ein.')
       return
     }
-
     fetch('/habit-categories/create', {
       method: 'POST',
       headers: {
@@ -145,7 +202,18 @@
       window.location.reload()
     })
   }
+
+  function toggleEmojiPicker() {
+  const picker = document.getElementById('emoji-picker')
+  picker.style.display = picker.style.display === 'grid' ? 'none' : 'grid'
+}
+
+function pickEmoji(emoji) {
+  document.getElementById('new-cat-emoji').value = emoji
+  document.getElementById('emoji-picker').style.display = 'none'
+}
+
 </script>
 
 </body>
-</html> 
+</html>
