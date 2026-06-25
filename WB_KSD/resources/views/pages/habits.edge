@@ -34,10 +34,7 @@
             @each(cat in categories)
               <div class="dropdown-item" style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; cursor:pointer; border-bottom:1px solid var(--border);">
                 <span onclick="selectCategory('{{ cat.name }}', '{{ cat.emoji }} {{ cat.name }}')">{{ cat.emoji }} {{ cat.name }}</span>
-                <form action="/habit-categories/delete/{{ cat.id }}" method="post" style="margin:0;">
-                  {{ csrfField() }}
-                  <button type="submit" style="border:none; background:none; color:#ef4444; cursor:pointer; font-size:14px; padding:0 4px;">✕</button>
-                </form>
+                <button type="button" onclick="deleteCategory({{ cat.id }})" style="border:none; background:none; color:#ef4444; cursor:pointer; font-size:14px; padding:0 4px;">✕</button>
               </div>
             @end
             <div style="padding:8px 12px; cursor:pointer; color:var(--accent); font-weight:500;" onclick="toggleNewCategory()">+ Neue Kategorie...</div>
@@ -71,14 +68,14 @@
 
     <div class="section-title">📅 Aktuell</div>
 
-    <ul class="habit-list" id="aktuell-list" ondragover="allowDrop(event)" ondrop="dropOnAktuell(event)">
+    <ul class="habit-list">
       @each(habit in habits)
-        @if(habit.is_active)
-          <li class="habit-card" data-id="{{ habit.id }}" draggable="true" ondragstart="drag(event, {{ habit.id }})">
-            <div class="habit-info">
-              <strong>{{ habit.name }}</strong>
-              <small>{{ habit.category }}</small>
-            </div>
+        <li class="habit-card">
+          <div class="habit-info">
+            <strong>{{ habit.name }}</strong>
+            <small>{{ habit.category }}</small>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
             @if(habit.isDoneToday)
               <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
                 {{ csrfField() }}
@@ -90,30 +87,12 @@
                 <button type="submit" class="btn btn-ghost">✅ Erledigt</button>
               </form>
             @end
-          </li>
-        @end
-      @end
-      <li class="drop-hint" style="list-style:none;">+ hierher ziehen um zu aktivieren</li>
-    </ul>
-
-    <hr class="section-divider">
-
-    <div class="section-title">⚙️ Alle Gewohnheiten</div>
-
-    <ul class="habit-list" id="alle-list" ondragover="allowDrop(event)" ondrop="dropOnAlle(event)">
-      @each(habit in habits)
-        @unless(habit.is_active)
-          <li class="habit-card" data-id="{{ habit.id }}" draggable="true" ondragstart="drag(event, {{ habit.id }})">
-            <div class="habit-info">
-              <strong>{{ habit.name }}</strong>
-              <small>{{ habit.category }}</small>
-            </div>
             <form action="/habits/delete/{{ habit.id }}" method="post" style="margin:0;">
               {{ csrfField() }}
               <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
             </form>
-          </li>
-        @end
+          </div>
+        </li>
       @end
     </ul>
 
@@ -163,6 +142,17 @@
         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
       },
       body: JSON.stringify({ name: name, emoji: emoji })
+    }).then(() => {
+      window.location.reload()
+    })
+  }
+
+  function deleteCategory(id) {
+    fetch('/habit-categories/delete/' + id, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+      }
     }).then(() => {
       window.location.reload()
     })

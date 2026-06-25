@@ -47,7 +47,8 @@ router.group(() => {
     await db.table('habits').insert({
       user_id: auth.user!.id,
       name: request.input('name'),
-      category: request.input('category'),
+      category: request.input('category') || 'Allgemein',
+      is_active: true,
     })
     return response.redirect('/habits')
   })
