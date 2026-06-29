@@ -82,36 +82,12 @@
 
       <aside class="right-panel" id="habits">
         <h2>Heutige Gewohnheiten</h2>
-        <p class="panel-subtitle">Kleine Schritte, große Wirkung</p>
+        <div class="habit-controls">
+          <input type="text" id="newHabit" placeholder="Neue Gewohnheit...">
+          <button type="button" onclick="addHabit()">+</button>
+        </div>
 
-        <form action="/habits/create" method="post" class="habit-controls">
-          {{ csrfField() }}
-          <input type="text" name="name" placeholder="Neue Gewohnheit..." required>
-          <input type="hidden" name="category" value="Allgemein">
-          <button type="submit">+</button>
-        </form>
-
-        <ul class="habit-list">
-          @each(habit in habits)
-            <li class="habit-card {{ habit.isDoneToday ? 'habit-done' : '' }}">
-              <div class="habit-info">
-                <strong>{{ habit.name }}</strong>
-                <small>{{ habit.category }}</small>
-              </div>
-              @if(habit.isDoneToday)
-                <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
-                  {{ csrfField() }}
-                  <button type="submit" class="fire-badge" style="border:none; cursor:pointer;">🔥 Geschafft!</button>
-                </form>
-              @else
-                <form action="/habits/log/{{ habit.id }}" method="post" style="margin:0;">
-                  {{ csrfField() }}
-                  <button type="submit" class="round-btn">✓</button>
-                </form>
-              @end
-            </li>
-          @end
-        </ul>
+        <div id="customHabits"></div>
 
       
 
@@ -131,9 +107,11 @@
       </aside>
     </div>
 
-    <a href="#new-task" class="floating-btn">+</a>
+   <a href="/calendar" class="floating-btn" title="Termin erstellen">
+  +
+</a> <!-- wenn man das + drückt, springt man zum Kalender (kann neuen Termin eintragen) -->
 
-    <section id="new-task" class="new-task-panel">
+<section id="new-task" class="new-task-panel"> 
       <h2>Neue Aufgabe</h2>
       <p>Erstelle schnell eine neue Aufgabe.</p>
 
