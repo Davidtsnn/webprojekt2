@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <title>LifeSync – Übersicht</title>
-  @vite(['resources/css/home.css'])
+     @vite(['resources/css/home.css'])
 </head>
 
 <body>
@@ -14,36 +14,41 @@
     <div class="page-header">
       <h1>Mein Habit-Dashboard</h1>
       <div style="display:flex; gap:10px;">
-        <a href="/calendar"><button class="btn-secondary">📅 Kalender</button></a>
-        <a href="/focus"><button class="btn-primary">⏱️ Zum Fokus-Timer</button></a>
+        <a href="/calendar"><button class="btn-secondary">📅 Kalender</button></a>   <!-- Link zum Kalender -->
+        <a href="/focus"><button class="btn-primary">⏱️ Zum Fokus-Timer</button></a>   <!-- Link zum Fokus Timer -->
       </div>
     </div>
 
     <header class="topbar">
-      <div class="goal-strip">
-  Kleine Schritte, große Wirkung
+      <!-- Mini Motivationssatz -->
+      <div class="goal-strip"> Kleine Schritte, große Wirkung </div>
     </header>
 
+  <!-- Begrüßungsbereich inkl. Fortschritt -->
     <section class="hero">
       <p>DEIN TAGESPLANER</p>
       <h1>Guten Morgen, Student!</h1>
       <span>Plane deinen Tag ruhig, klar und fokussiert.</span>
 
-
+   <!-- Fortschrittsanzeigen -->
       <div class="progress-container">
         <div class="progress-card">
           <div class="progress-circle habit-goal"><strong>0%</strong></div>
           <span>Gewohnheitsziel</span>
         </div>
+
+         <!-- Karte für Fortschritt -->
         <div class="progress-card">
-          <div class="progress-circle learning"><strong>0%</strong></div>
+          <div class="progress-circle learning"><strong>0%</strong></div>   <!-- Fortschritt -> startet bei 0% -->
           <span>Lernziel</span>
         </div>
       </div>
     </section>
 
-    <div class="dashboard-grid">
+     <!-- Grid teilt -->
+     <div class="dashboard-grid">
 
+       <!-- Bereich Aufgaben -->
       <section id="tasks">
         <div class="section-head">
           <div>
@@ -51,8 +56,9 @@
             <p>Deine wichtigsten Aufgaben</p>
           </div>
           <span>{{ todos.length }} Aufgaben</span>
-        </div>
+    </div>
 
+         <!-- Schleife: jede Aufgabe aus todos -->
         @each (todo in todos)
           <div class="task-card priority-{{ todo.priority }}">
             <form action="/todos/complete/{{ todo.id }}" method="post">
@@ -60,6 +66,7 @@
               <button type="submit" class="check-btn">{{ todo.is_completed ? '✓' : '' }}</button>
             </form>
 
+             <!-- Infos zur Aufgabe -->
             <div class="task-info">
               <strong class="{{ todo.is_completed ? 'completed-text' : '' }}">{{ todo.title }}</strong>
               <small class="task-category">
@@ -70,6 +77,7 @@
               @end
             </div>
 
+            <!-- Zeigt die Priorität -->
             <span class="badge">{{ todo.priority }}</span>
             <a href="/todos/edit/{{ todo.id }}" class="icon-btn">✎</a>
             <form action="/todos/delete/{{ todo.id }}" method="post">
@@ -77,9 +85,10 @@
               <button type="submit" class="icon-btn delete">⌫</button>
             </form>
           </div>
-        @end
+        @end 
       </section>
 
+       <!-- Rechte Spalte mit Gewohnheiten und Terminen -->
       <aside class="right-panel" id="habits">
         <h2>Heutige Gewohnheiten</h2>
         <div class="habit-controls">
@@ -87,10 +96,11 @@
           <button type="button" onclick="addHabit()">+</button>
         </div>
 
+        <!-- Hier: neue Gewohnheiten per JS eingefügt -->
         <div id="customHabits"></div>
 
       
-
+        <!-- Karte Tagesstatistik -->
         <section class="stats-card">
           <h2>Tagesstatistik</h2>
           <p>✅ Aufgaben: {{ todos.length }} insgesamt</p>
@@ -98,6 +108,7 @@
           <p>📚 Lernen: automatisch durch erledigte Aufgaben</p>
         </section>
 
+           <!-- Anstehende Termine -->
         <section class="appointments">
           <h2>Anstehende Termine</h2>
           <p class="muted" style="font-size:13px;">Die nächsten 5 Termine</p>
@@ -109,14 +120,17 @@
 
    <a href="/calendar" class="floating-btn" title="Termin erstellen">
   +
-</a> <!-- wenn man das + drückt, springt man zum Kalender (kann neuen Termin eintragen) -->
+</a> //wenn man das + drückt, springt man zum Kalender (kann neuen Termin eintragen) -->
 
 <section id="new-task" class="new-task-panel"> 
       <h2>Neue Aufgabe</h2>
       <p>Erstelle schnell eine neue Aufgabe.</p>
 
+       <!-- Formular: Speichern einer neuen Aufgabe -->
       <form action="/todos/create" method="post" enctype="multipart/form-data" class="todo-form">
         {{ csrfField() }}
+
+          <!-- Pflichtfeld -->
         <input type="text" name="title" placeholder="Was ist zu tun?" required>
         <input type="date" name="due_date">
         <select name="category">
@@ -129,6 +143,8 @@
           <option value="Mittel">Mittel</option>
           <option value="Hoch">Hoch</option>
         </select>
+
+       <!-- optional ein Bild hochladen -->
         <input type="file" name="image" accept="image/*">
         <button type="submit">Hinzufügen</button>
       </form>
@@ -138,6 +154,7 @@
 </div>
 
 <script>
+  // Aufgaben (+Datum) -> Termine vorbereitet
   const todoAppointments = [
     @each(todo in todos)
       @if(todo.due_date)
@@ -150,12 +167,14 @@
     @end
   ]
 
+    // Gewohnheit als erledigt/nicht erledigt markieren
   function toggleHabit(event, button) {
     event.stopPropagation()
     const card = button.closest('.habit-card')
     const habitName = card.querySelector('strong').innerText
     card.classList.toggle('habit-done')
 
+     // Gewohnheit erledigt?
     if (card.classList.contains('habit-done')) {
       button.innerText = '✓'
       localStorage.setItem('habit-' + habitName, 'done')
@@ -164,31 +183,36 @@
       localStorage.removeItem('habit-' + habitName)
     }
 
+    // Fortschritt neu berechnen
     updateGoals()
   }
 
+    // Neue Gewohnheit hinzufügen
   function addHabit() {
     const input = document.getElementById('newHabit')
     const name = input.value.trim()
-    if (!name) return
+    if (!name) return //Abbrechen (wenn nix drin steht)
 
+    // Gespeicherte Gewohnheiten laden/leeres Array nehmen
     const customHabits = JSON.parse(localStorage.getItem('customHabits')) || []
 
+   // Nur speichern, wenn -> Gewohnheit gibt's noch nicht
     if (!customHabits.includes(name)) {
       customHabits.push(name)
       localStorage.setItem('customHabits', JSON.stringify(customHabits))
       createCustomHabit(name)
     }
-
+    // Eingabefeld leeren
     input.value = ''
     updateGoals()
   }
-
+  // Erstellt HTML-Karte für eine Gewohnheit
   function createCustomHabit(name) {
     const container = document.getElementById('customHabits')
     const habit = document.createElement('div')
     habit.className = 'habit-card'
 
+   // Inhalt der Gewohnheits-Karte setzen
     habit.innerHTML = `
       <div class="habit-info">
         <strong>${name}</strong>
@@ -197,10 +221,10 @@
       <button class="round-btn" type="button" onclick="toggleHabit(event, this)">+</button>
       <button class="delete-habit" type="button" onclick="removeHabit(event, this)">×</button>
     `
-
+    // Karte auf der Seite einfügen
     container.appendChild(habit)
   }
-
+  // Gewohnheit löschen
   function removeHabit(event, button) {
     event.stopPropagation()
     const card = button.closest('.habit-card')
@@ -211,12 +235,14 @@
       return habit !== name
     })
 
+    // Liste wieder im Browser speichern
     localStorage.setItem('customHabits', JSON.stringify(customHabits))
     localStorage.removeItem('habit-' + name)
     card.remove()
     updateGoals()
   }
 
+   // Eigene Gewohnheiten beim Laden der Seite anzeigen
   function loadCustomHabits() {
     const customHabits = JSON.parse(localStorage.getItem('customHabits')) || []
     customHabits.forEach(function (name) {
@@ -224,40 +250,49 @@
     })
   }
 
+    // Erledigte Gewohnheiten wieder herstellen --> wenn doch ned erledigt
   function loadHabits() {
     document.querySelectorAll('.habit-card').forEach(function (card) {
       const habitName = card.querySelector('strong').innerText
       const button = card.querySelector('.round-btn')
-
+      
+      // Prüfen, ob Gewohnheit gespeichert erledigt ist
       if (localStorage.getItem('habit-' + habitName) === 'done') {
         card.classList.add('habit-done')
         if (button) button.innerText = '✓'
       }
     })
   }
-
+ 
+ // Fortschritt für Gewohnheiten & Aufgaben berechnen
   function updateGoals() {
     const habits = document.querySelectorAll('.habit-card')
     const doneHabits = document.querySelectorAll('.habit-card.habit-done')
     let habitPercent = habits.length > 0 ? Math.round((doneHabits.length / habits.length) * 100) : 0
 
+    // Kreis Gewohnheitsziel 
     const habitCircle = document.querySelector('.progress-circle.habit-goal')
 
+    // Nur ändern, wenn der Kreis existiert
     if (habitCircle) {
       habitCircle.querySelector('strong').innerText = habitPercent + '%'
       habitCircle.style.background = `conic-gradient(var(--primary) ${habitPercent * 3.6}deg, var(--primary-soft) 0deg)`
     }
 
+    // Text für Gewohnheiten-Statistik holen
     const habitStats = document.getElementById('habitStats')
 
     if (habitStats) {
-      habitStats.innerText = '🌿 Gewohnheiten: ' + doneHabits.length + ' von ' + habits.length + ' erledigt'
+      habitStats.innerText = '🌿 Gewohnheiten: ' + doneHabits.length + ' von ' + habits.length + ' erledigt'    // Statistik-Text aktualisieren
+
     }
 
+    // Alle Aufgaben holen
     const tasks = document.querySelectorAll('.task-card')
     const doneTasks = document.querySelectorAll('.completed-text')
     let learningPercent = tasks.length > 0 ? Math.round((doneTasks.length / tasks.length) * 100) : 0
 
+    // Kreis für Lernziel holen
     const learningCircle = document.querySelector('.progress-circle.learning')
 
     if (learningCircle) {
@@ -266,6 +301,7 @@
     }
   }
 
+    // Termine aus Aufgaben & Kalender anzeigen
   function loadCalendarAppointments() {
     const container = document.getElementById('calendarAppointments')
     if (!container) return
@@ -286,11 +322,12 @@
       .sort(function (a, b) {
         return new Date(a.date) - new Date(b.date)
       })
-      .slice(0, 5)
+      .slice(0, 5)       // Nur nächsten 5 Termine anzeigen
+
 
     container.innerHTML = ''
 
-    if (upcomingEvents.length === 0) {
+    if (upcomingEvents.length === 0) { 
       container.innerHTML = `
         <p class="muted" style="font-size:13px;">
           Noch keine anstehenden Termine.
