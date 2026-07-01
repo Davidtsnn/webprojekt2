@@ -2,11 +2,11 @@
 <html>
 <head>
   <title>Aufgaben – LifeSync</title>
-  @vite(['resources/css/todos.css'])
+  @vite(['resources/css/todos.css']) 
 </head>
 <body>
 
-  <meta name="csrf-token" content="{{ csrfToken }}">
+<meta name="csrf-token" content="{{ csrfToken }}"> 
 
 <div class="app-layout">
 
@@ -18,45 +18,70 @@
       <h1 class="page-title">📋 Aufgaben</h1>
     </div>
 
-
     <div class="eisenhower-layout">
 
       {{-- INBOX --}}
       <div class="inbox-col">
+
         <div class="inbox-header">
           <span>📥 Inbox</span>
           <span class="column-count">{{ todos.filter(t => !t.quadrant).length }}</span>
+          {{-- zählt wie viele Aufgaben in Inbox sind --}}
         </div>
-        <form action="/todos/create" method="post" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:6px;">
+
+
+        {{-- Formular zum Erstellen einer neuen Aufgabe --}}
+        <form action="/todos/create" method="post">
           {{ csrfField() }}
-          <input type="text" name="title" placeholder="+ Aufgabe hinzufügen..." required style="padding:8px 10px; border-radius:8px; border:1px solid var(--border); font-size:13px; background:var(--bg);">
-          <input type="date" name="due_date" title="Fälligkeitsdatum" style="padding:8px 10px; border-radius:8px; border:1px solid var(--border); font-size:12px; background:var(--bg);">
-          <select name="category" style="padding:8px; border-radius:8px; border:1px solid var(--border); font-size:12px;">
+
+          <input type="text" name="title" placeholder="+ Aufgabe hinzufügen..." required>
+          {{-- Pflicht --}}
+
+          <input type="date" name="due_date" title="Fälligkeitsdatum">
+
+          <select name="category">
             <option value="Uni">🎓 Uni</option>
             <option value="Haushalt">🏠 Haushalt</option>
             <option value="Freizeit">🎈 Freizeit</option>
+            <option value="Sport">💪 Sport</option>
+            <option value="Arbeit">💼 Arbeit</option>
+            <option value="Familie">👨‍👩‍👧 Familie</option>
+            <option value="Sonstiges">🌟 Sonstiges</option>
           </select>
-          <select name="priority" style="padding:8px; border-radius:8px; border:1px solid var(--border); font-size:12px;">
+
+          <select name="priority">
             <option value="Niedrig">🟢 Niedrig</option>
             <option value="Mittel">🟡 Mittel</option>
             <option value="Hoch">🔴 Hoch</option>
           </select>
-          <button type="submit" class="btn btn-primary" style="font-size:13px;">+ Hinzufügen</button>
+
+          <button type="submit" class="btn btn-primary">+ Hinzufügen</button>
+          {{-- schickt POST Request an /todos/create --}}
         </form>
+
         <div class="inbox-list" id="inbox" ondragover="allowDrop(event)" ondrop="drop(event, null)">
           @each(todo in todos)
-            @if(!todo.quadrant)
-              <div class="inbox-chip" draggable="true" ondragstart="drag(event, {{ todo.id }})">
-                <span class="drag-handle">⠿</span>
-                <span>{{ todo.title }}</span>
-              </div>
-            @end
-          @end
-        </div>
+          @if(!todo.quadrant)
+          {{-- Aufgaben die noch nicht in Eisenhower-Matrix sind --}}
+
+      <div class="inbox-chip" draggable="true" ondragstart="drag(event, {{ todo.id }})">
+        {{-- Drag & Drop in Matrix!! --}}
+        <span class="drag-handle">⠿</span>
+        <span>{{ todo.title }}</span>
+        <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
+          {{ csrfField() }}
+          <button type="submit" style="border:none; background:none; cursor:pointer; color:#ef4444; font-size:14px;">✕</button>
+        </form>
+      </div>
+    @end
+  @end
+</div>
+
       </div>
 
-      {{-- MATRIX --}}
+      {{-- ── EISENHOWER-MATRIX ── --}}
       <div class="matrix-col">
+
         <div class="matrix-axis-row">
           <span class="axis-label">← dringend</span>
           <span class="axis-label">nicht dringend →</span>
@@ -64,24 +89,35 @@
 
         <div class="matrix-grid">
 
-          {{-- Sofort erledigen --}}
+          {{-- Quadrant 1 --}}
           <div class="quadrant q-do" ondragover="allowDrop(event)" ondrop="drop(event, 'do')">
             <div class="q-label q-do-label">SOFORT ERLEDIGEN</div>
             <div class="q-sublabel">Wichtig + Dringend</div>
             @each(todo in todos)
               @if(todo.quadrant === 'do')
+                {{-- if- Check: zeigt nur Aufgaben die diesem Quadranten zugeordnet sind --}}
                 <div class="q-card q-do-card" draggable="true" ondragstart="drag(event, {{ todo.id }})">
-                  <span class="cat-badge cat-{{ todo.category ? todo.category.toLowerCase() : 'uni' }}">{{ todo.category }}</span>
+                  @if(todo.category)
+                <span class="cat-badge cat-{{ todo.category.toLowerCase() }}">{{ todo.category }}</span>
+                @end
+                  {{-- Kategorie anzeige --}}
+                  
                   <div class="q-card-title">{{ todo.title }}</div>
+
                   <div class="q-card-actions">
+      
+                    {{-- Erledigt Button --}}
                     <form action="/todos/complete/{{ todo.id }}" method="post" style="margin:0;">
                       {{ csrfField() }}
                       <button type="submit" class="btn-icon">{{ todo.is_completed ? '↩️' : '✅' }}</button>
                     </form>
+
+                    {{-- Löschen Button --}}
                     <form action="/todos/delete/{{ todo.id }}" method="post" style="margin:0;">
                       {{ csrfField() }}
                       <button type="submit" class="btn-icon btn-icon-danger">🗑️</button>
                     </form>
+
                   </div>
                 </div>
               @end
@@ -89,7 +125,7 @@
             <div class="drop-hint">+ hierher ziehen</div>
           </div>
 
-          {{-- Einplanen --}}
+          {{-- Quadrant 2 --}}
           <div class="quadrant q-plan" ondragover="allowDrop(event)" ondrop="drop(event, 'plan')">
             <div class="q-label q-plan-label">EINPLANEN</div>
             <div class="q-sublabel">Wichtig + Nicht dringend</div>
@@ -114,7 +150,7 @@
             <div class="drop-hint">+ hierher ziehen</div>
           </div>
 
-          {{-- Delegieren --}}
+          {{-- Quadrant 3 --}}
           <div class="quadrant q-delegate" ondragover="allowDrop(event)" ondrop="drop(event, 'delegate')">
             <div class="q-label q-delegate-label">DELEGIEREN</div>
             <div class="q-sublabel">Unwichtig + Dringend</div>
@@ -139,7 +175,7 @@
             <div class="drop-hint">+ hierher ziehen</div>
           </div>
 
-          {{-- Weglassen --}}
+          {{-- Quadrant 4 --}}
           <div class="quadrant q-drop" ondragover="allowDrop(event)" ondrop="drop(event, 'drop')">
             <div class="q-label q-drop-label">WEGLASSEN</div>
             <div class="q-sublabel">Unwichtig + Nicht dringend</div>
@@ -173,36 +209,50 @@
 
 <script>
   let draggedId = null
+  // speichert die ID der Aufgabe die gerade gezogen wird
 
   function drag(event, id) {
     draggedId = id
-    // WICHTIG: ohne dataTransfer startet der Drag in vielen Browsern (v.a. Firefox) nicht
+    // merkt sich welche Aufgabe gezogen wird
     event.dataTransfer.setData('text/plain', id)
+    // speichert die ID im Drag-Event (für Browser-Kompatibilität)
     event.dataTransfer.effectAllowed = 'move'
+    // zeigt dem Browser an dass es ein "Verschieben" ist
   }
 
   function allowDrop(event) {
     event.preventDefault()
+    // verhindert das Standard-Verhalten (ohne das funktioniert Drop nicht)
     event.dataTransfer.dropEffect = 'move'
   }
 
   function drop(event, quadrant) {
     event.preventDefault()
     const id = draggedId || event.dataTransfer.getData('text/plain')
+    // holt die ID der gezogenen Aufgabe
     if (!id) return
 
     fetch('/todos/quadrant/' + id, {
+      // schickt POST Request an den Server mit dem neuen Quadranten
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        // Sicherheits-Token aus dem Meta-Tag oben
+      },
       body: JSON.stringify({ quadrant: quadrant })
+      // schickt den Quadranten-Namen als JSON (z.B. "do", "plan", "delegate", "drop" oder null für Inbox)
     }).then((r) => {
       if (r.ok) {
         window.location.reload()
+        // Seite neu laden damit die Aufgabe im richtigen Quadranten erscheint
       } else {
         alert('Verschieben fehlgeschlagen (Status ' + r.status + ').')
       }
     }).catch(() => alert('Verschieben fehlgeschlagen – keine Verbindung.'))
+
     draggedId = null
+    // ID zurücksetzen nach dem Drop
   }
 </script>
 

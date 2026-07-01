@@ -119,10 +119,10 @@ router.group(() => {
     return response.redirect('/todos')
   })
 
-  router.post('/todos/delete/:id', async ({ params, response, auth }) => {
-    await db.from('todos').where('id', params.id).where('user_id', auth.user!.id).delete()
-    return response.redirect('/todos')
-  })
+  router.post('/todos/delete/:id', async ({ params, request, response, auth }) => {
+  await db.from('todos').where('id', params.id).where('user_id', auth.user!.id).delete()
+  return response.redirect().back()
+}) //Auf Startseite Aufgabe löschen und da bleiben
 
   router.post('/todos/complete/:id', async ({ params, response, auth }) => {
     const todo = await db.from('todos').where('id', params.id).where('user_id', auth.user!.id).first()
